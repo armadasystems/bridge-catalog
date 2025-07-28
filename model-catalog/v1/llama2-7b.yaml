@@ -1,5 +1,6 @@
 # llama2-7b.yaml
-id: meta-llama/Meta-Llama-3-8B-Instruct
+id: 1
+modelId: meta-llama/Meta-Llama-3-8B-Instruct
 name: Llama 3 8B Instruct
 description: A 8B parameter language model fine-tuned for chat use cases
 type: text-generation
