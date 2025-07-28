@@ -1,0 +1,45 @@
+{
+    "type": "object",
+    "required": ["replicaCount", "service.type"],
+    "properties": {
+      "replicaCount": {
+        "type": "integer",
+        "title": "Replica Count",
+        "default": 1,
+        "minimum": 1
+      },
+      "service": {
+        "type": "object",
+        "title": "Service Configuration",
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Service Type",
+            "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+            "default": "ClusterIP"
+          },
+          "port": {
+            "type": "integer",
+            "title": "Service Port",
+            "default": 80
+          }
+        }
+      },
+      "ingress": {
+        "type": "object",
+        "title": "Ingress",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "hostname": {
+            "type": "string",
+            "title": "Hostname",
+            "default": "nginx.local"
+          }
+        }
+      }
+    }
+  }
+  
