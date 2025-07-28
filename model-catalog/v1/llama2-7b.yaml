@@ -1,0 +1,24 @@
+# llama2-7b.yaml
+id: meta-llama/Meta-Llama-3-8B-Instruct
+name: Llama 3 8B Instruct
+description: A 8B parameter language model fine-tuned for chat use cases
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "instruction-following"]
+logo: logo.png
+
+provider:
+  name: huggingface
+  type: openSource  
+  logo: logo.png
+
+modelInfo:
+  architecture: transformer
+  language: ["en"]
+  parameters: "8B"
+  contextLength: 4096
+  minGPUMemory: "16GB"
+  minRAM: "16GB"
+  recommendedGPU: ["A100", "RTX4090", "H100"]
+  modelId: meta-llama/Meta-Llama-3-8B-Instruct
+
