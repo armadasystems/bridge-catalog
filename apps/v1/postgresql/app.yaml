@@ -8,14 +8,14 @@ chart:
   repoURL: "https://charts.bitnami.com/bitnami"
   chartName: "postgresql"
 
-logoURL: "https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x234.png"
+logoURL: "https://artifacthub.io/image/371d5e57-34c4-46ef-909e-658c1502ced8@1x"
 
 versions:
   - chartVersion: "13.2.20"
     appVersion: "16.2.0" 
     schemaFile: "schema.json"
     valuesFile: "values.yaml"
-  - chartVersion: "12.1.0"
-    appVersion: "15.1.0"
+  - chartVersion: "14.0.0"
+    appVersion: "16.1.0"
     schemaFile: "schema.json"
     valuesFile: "values.yaml"
