@@ -1,0 +1,18 @@
+modelId: mistralai/Mistral-7B-Instruct-v0.2
+name: Mistral 7B Instruct
+description: A 7B parameter language model fine-tuned for chat use cases
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://nvidia.nim.io/mistralai/Mistral-7B-Instruct-v0.2"
+  requiresAuth: true
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
