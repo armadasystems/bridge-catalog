@@ -1,0 +1,71 @@
+{
+    "type": "object",
+    "properties": {
+      "replicaCount": {
+        "type": "integer",
+        "title": "Replica Count",
+        "default": 1,
+        "minimum": 1
+      },
+      "image": {
+        "type": "object",
+        "title": "Image Settings",
+        "properties": {
+          "registry": {
+            "type": "string",
+            "default": "docker.io"
+          },
+          "repository": {
+            "type": "string",
+            "default": "bitnami/nginx"
+          },
+          "tag": {
+            "type": "string",
+            "default": "1.21.0-debian-10-r0"
+          },
+          "pullPolicy": {
+            "type": "string",
+            "default": "IfNotPresent"
+          }
+        }
+      },
+      "service": {
+        "type": "object",
+        "title": "Service Settings",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+            "default": "ClusterIP"
+          },
+          "port": {
+            "type": "integer",
+            "default": 80
+          }
+        }
+      },
+      "ingress": {
+        "type": "object",
+        "title": "Ingress Settings",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "hostname": {
+            "type": "string",
+            "default": "nginx.local"
+          },
+          "path": {
+            "type": "string",
+            "default": "/"
+          },
+          "tls": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  }
+  

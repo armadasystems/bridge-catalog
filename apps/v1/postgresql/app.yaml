@@ -1,6 +1,5 @@
 name: "postgresql"
 displayName: "PostgreSQL"
-version: "16.2.0"
 description: "Open source relational database for transactional and analytical workloads"
 category: "Databases"
 tags: ["postgres", "sql", "database"]
@@ -8,8 +7,15 @@ tags: ["postgres", "sql", "database"]
 chart:
   repoURL: "https://charts.bitnami.com/bitnami"
   chartName: "postgresql"
-  chartVersion: "13.2.20"
 
-schemaFile: "schema.json"
 logoURL: "https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x234.png"
-valuesFile: "values.yaml"
+
+versions:
+  - chartVersion: "13.2.20"
+    appVersion: "16.2.0"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"
+  - chartVersion: "12.1.0"
+    appVersion: "15.1.0"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"
