@@ -1,0 +1,9 @@
+modelId: Qwen/Qwen2.5-1.5B-Instruct
+name: Qwen2.5 5B Instruct
+description: A 5B parameter language model fine-tuned for chat use cases
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/620760a26e3b7210c2ff1943/-s1gyJfvbE1RgO5iBeNOi.png"
+url: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
+provider: huggingface
