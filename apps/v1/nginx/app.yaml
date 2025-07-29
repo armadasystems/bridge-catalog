@@ -1,6 +1,6 @@
 name: "nginx"
 displayName: "NGINX Web Server"
-description: "High-performance HTTP and reverse proxy server."
+description: "High-performance HTTP and reverse proxy server"
 category: "Infrastructure"
 tags: ["nginx", "web", "proxy"]
 
