@@ -12,7 +12,7 @@ logoURL: "https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x
 
 versions:
   - chartVersion: "13.2.20"
-    appVersion: "16.2.0"
+    appVersion: "16.2.0" 
     schemaFile: "schema.json"
     valuesFile: "values.yaml"
   - chartVersion: "12.1.0"

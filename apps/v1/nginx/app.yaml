@@ -1,6 +1,6 @@
 name: "nginx"
 displayName: "NGINX Web Server"
-description: "High-performance HTTP and reverse proxy server"
+description: "High-performance HTTP and reverse proxy server."
 category: "Infrastructure"
 tags: ["nginx", "web", "proxy"]
 
@@ -17,3 +17,5 @@ versions:
     valuesFile: "values.yaml"
   - chartVersion: "13.0.0"
     appVersion: "1.21.0"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"
