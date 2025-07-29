@@ -1,0 +1,15 @@
+name: "nginx"
+displayName: "NGINX Web Server"
+version: "1.25.2"
+description: "High-performance HTTP and reverse proxy server"
+category: "Infrastructure"
+tags: ["nginx", "web", "proxy"]
+
+chart:
+  repoURL: "https://charts.bitnami.com/bitnami"
+  chartName: "nginx"
+  chartVersion: "15.6.5"
+
+schemaFile: "schema.json"
+logoURL: "https://bitnami.com/assets/stacks/nginx/img/nginx-stack-220x234.png"
+valuesFile: "values.yaml"

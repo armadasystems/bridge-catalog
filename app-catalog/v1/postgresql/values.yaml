@@ -1,0 +1,11 @@
+primary:
+  replicaCount: 1
+
+auth:
+  username: admin
+  password: admin123
+  database: mydatabase
+
+service:
+  type: ClusterIP
+  port: 5432

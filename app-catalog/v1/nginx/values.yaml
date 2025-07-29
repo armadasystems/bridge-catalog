@@ -1,0 +1,17 @@
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: bitnami/nginx
+  tag: 1.25.2-debian-11-r0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  hostname: nginx.local
+  path: /
+  tls: false

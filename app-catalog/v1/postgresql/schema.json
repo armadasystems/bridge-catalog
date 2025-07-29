@@ -1,0 +1,55 @@
+{
+    "type": "object",
+    "required": ["auth.username", "auth.password", "auth.database"],
+    "properties": {
+      "primary": {
+        "type": "object",
+        "title": "Primary Settings",
+        "properties": {
+          "replicaCount": {
+            "type": "integer",
+            "title": "Replica Count",
+            "default": 1,
+            "minimum": 1
+          }
+        }
+      },
+      "auth": {
+        "type": "object",
+        "title": "Authentication",
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "PostgreSQL User",
+            "default": "admin"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password",
+            "format": "password"
+          },
+          "database": {
+            "type": "string",
+            "title": "Database Name",
+            "default": "mydatabase"
+          }
+        }
+      },
+      "service": {
+        "type": "object",
+        "title": "Service Settings",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+            "default": "ClusterIP"
+          },
+          "port": {
+            "type": "integer",
+            "default": 5432
+          }
+        }
+      }
+    }
+  }
+  
