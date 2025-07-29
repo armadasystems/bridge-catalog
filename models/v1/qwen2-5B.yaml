@@ -7,3 +7,12 @@ tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/620760a26e3b7210c2ff1943/-s1gyJfvbE1RgO5iBeNOi.png"
 repoUrl: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
 provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
+  requiresAuth: false
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""

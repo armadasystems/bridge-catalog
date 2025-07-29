@@ -8,3 +8,12 @@ tags: ["text", "chat", "conversational", "instruction-following"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
 repoUrl: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
 provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
+  requiresAuth: true
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
