@@ -6,5 +6,5 @@ type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational", "instruction-following"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
-url: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
+repoUrl: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
 provider: huggingface
