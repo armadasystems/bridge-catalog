@@ -1,71 +1,452 @@
 {
+  "form": {
     "type": "object",
+    "viewSpec": {
+      "type": "base"
+    },
+    "order": [
+      "global",
+      "diagnosticMode",
+      "image",
+      "replicaCount",
+      "revisionHistoryLimit",
+      "updateStrategy",
+      "pod",
+      "affinity",
+      "resourcesPreset",
+      "resources",
+      "probes",
+      "autoscaling",
+      "extraVolumes",
+      "serviceAccount",
+      "sidecars",
+      "initContainers",
+      "pdb",
+      "cloneStaticSiteFromGit",
+      "serverBlock",
+      "service",
+      "networkPolicy",
+      "ingress",
+      "healthIngress",
+      "metrics"
+    ],
     "properties": {
-      "replicaCount": {
-        "type": "integer",
-        "title": "Replica Count",
-        "default": 1,
-        "minimum": 1
-      },
-      "image": {
+      "global": {
         "type": "object",
-        "title": "Image Settings",
+        "viewSpec": {"type": "base"},
+        "layout": "section",
+        "layoutTitle": "Global Configuration",
+        "order": [
+          "imageRegistry",
+          "imagePullSecrets",
+          "compatibility",
+          "nameOverride",
+          "fullnameOverride",
+          "namespaceOverride",
+          "kubeVersion",
+          "clusterDomain",
+          "extraDeploy",
+          "commonLabels",
+          "commonAnnotations"
+        ],
         "properties": {
-          "registry": {
-            "type": "string",
-            "default": "docker.io"
+          "imageRegistry": {"type": "string"},
+          "imagePullSecrets": {"type": "array", "items": {"type": "string"}},
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "openshift": {
+                "type": "object",
+                "properties": {
+                  "adaptSecurityContext": {"type": "string", "default": "auto"}
+                }
+              }
+            }
           },
-          "repository": {
-            "type": "string",
-            "default": "bitnami/nginx"
+          "nameOverride": {"type": "string"},
+          "fullnameOverride": {"type": "string"},
+          "namespaceOverride": {"type": "string"},
+          "kubeVersion": {"type": "string"},
+          "clusterDomain": {"type": "string", "default": "cluster.local"},
+          "extraDeploy": {"type": "array", "items": {"type": "object"}},
+          "commonLabels": {"type": "object"},
+          "commonAnnotations": {"type": "object"}
+        }
+      },
+      "diagnosticMode": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": false},
+          "command": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["sleep"]
           },
-          "tag": {
-            "type": "string",
-            "default": "1.21.0-debian-10-r0"
-          },
-          "pullPolicy": {
-            "type": "string",
-            "default": "IfNotPresent"
+          "args": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["infinity"]
           }
         }
       },
+      "image": {
+        "type": "object",
+        "properties": {
+          "registry": {"type": "string", "default": "docker.io"},
+          "repository": {"type": "string", "default": "bitnami/nginx"},
+          "tag": {"type": "string", "default": "1.26.0-debian-12-r0"},
+          "digest": {"type": "string"},
+          "pullPolicy": {"type": "string", "default": "IfNotPresent"},
+          "pullSecrets": {"type": "array", "items": {"type": "string"}},
+          "debug": {"type": "boolean", "default": false}
+        }
+      },
+      "replicaCount": {
+        "type": "number",
+        "default": 1
+      },
+      "revisionHistoryLimit": {
+        "type": "number",
+        "default": 10
+      },
+      "updateStrategy": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string", "default": "RollingUpdate"},
+          "rollingUpdate": {"type": "object"}
+        }
+      },
+      "pod": {
+        "type": "object",
+        "order": [
+          "podLabels",
+          "podAnnotations",
+          "podAffinityPreset",
+          "podAntiAffinityPreset",
+          "hostAliases",
+          "command",
+          "args",
+          "extraEnvVars",
+          "extraEnvVarsCM",
+          "extraEnvVarsSecret"
+        ],
+        "properties": {
+          "podLabels": {"type": "object"},
+          "podAnnotations": {"type": "object"},
+          "podAffinityPreset": {"type": "string"},
+          "podAntiAffinityPreset": {"type": "string", "default": "soft"},
+          "hostAliases": {"type": "array", "items": {"type": "object"}},
+          "command": {"type": "array", "items": {"type": "string"}},
+          "args": {"type": "array", "items": {"type": "string"}},
+          "extraEnvVars": {"type": "array", "items": {"type": "object"}},
+          "extraEnvVarsCM": {"type": "string"},
+          "extraEnvVarsSecret": {"type": "string"}
+        }
+      },
+      "affinity": {
+        "type": "object",
+        "order": [
+          "nodeAffinityPreset",
+          "affinity",
+          "hostNetwork",
+          "hostIPC",
+          "nodeSelector",
+          "tolerations",
+          "priorityClassName",
+          "schedulerName",
+          "terminationGracePeriodSeconds",
+          "topologySpreadConstraints"
+        ],
+        "properties": {
+          "nodeAffinityPreset": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "key": {"type": "string"},
+              "values": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "affinity": {"type": "object"},
+          "hostNetwork": {"type": "boolean", "default": false},
+          "hostIPC": {"type": "boolean", "default": false},
+          "nodeSelector": {"type": "object"},
+          "tolerations": {"type": "array", "items": {"type": "object"}},
+          "priorityClassName": {"type": "string"},
+          "schedulerName": {"type": "string"},
+          "terminationGracePeriodSeconds": {"type": "number"},
+          "topologySpreadConstraints": {"type": "array", "items": {"type": "object"}}
+        }
+      },
+      "resourcesPreset": {"type": "string", "default": "nano"},
+      "resources": {"type": "object"},
+      "probes": {
+        "type": "object",
+        "order": ["startupProbe", "livenessProbe", "readinessProbe"],
+        "properties": {
+          "startupProbe": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": false},
+              "initialDelaySeconds": {"type": "number", "default": 30},
+              "timeoutSeconds": {"type": "number", "default": 5},
+              "periodSeconds": {"type": "number", "default": 10},
+              "failureThreshold": {"type": "number", "default": 6},
+              "successThreshold": {"type": "number", "default": 1}
+            }
+          },
+          "livenessProbe": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": true},
+              "initialDelaySeconds": {"type": "number", "default": 30},
+              "timeoutSeconds": {"type": "number", "default": 5},
+              "periodSeconds": {"type": "number", "default": 10},
+              "failureThreshold": {"type": "number", "default": 6},
+              "successThreshold": {"type": "number", "default": 1}
+            }
+          },
+          "readinessProbe": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": true},
+              "initialDelaySeconds": {"type": "number", "default": 5},
+              "timeoutSeconds": {"type": "number", "default": 3},
+              "periodSeconds": {"type": "number", "default": 5},
+              "failureThreshold": {"type": "number", "default": 3},
+              "successThreshold": {"type": "number", "default": 1}
+            }
+          }
+        }
+      },
+      "autoscaling": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": false},
+          "minReplicas": {"type": "number"},
+          "maxReplicas": {"type": "number"},
+          "targetCPU": {"type": "string"},
+          "targetMemory": {"type": "string"}
+        }
+      },
+      "extraVolumes": {"type": "array", "items": {"type": "object"}},
+      "serviceAccount": {
+        "type": "object",
+        "properties": {
+          "create": {"type": "boolean", "default": true},
+          "name": {"type": "string"},
+          "annotations": {"type": "object"},
+          "automountServiceAccountToken": {"type": "boolean", "default": false}
+        }
+      },
+      "sidecars": {"type": "array", "items": {"type": "object"}},
+      "initContainers": {"type": "array", "items": {"type": "object"}},
+      "pdb": {
+        "type": "object",
+        "properties": {
+          "create": {"type": "boolean", "default": false},
+          "minAvailable": {"type": "number", "default": 1},
+          "maxUnavailable": {"type": "number", "default": 0}
+        }
+      },
+      "cloneStaticSiteFromGit": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": false},
+          "image": {
+            "type": "object",
+            "properties": {
+              "registry": {"type": "string", "default": "docker.io"},
+              "repository": {"type": "string", "default": "bitnami/git"},
+              "tag": {"type": "string", "default": "2.45.0-debian-12-r2"},
+              "digest": {"type": "string"},
+              "pullPolicy": {"type": "string", "default": "IfNotPresent"},
+              "pullSecrets": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "repository": {"type": "string"},
+          "branch": {"type": "string"},
+          "interval": {"type": "number", "default": 60},
+          "gitClone": {
+            "type": "object",
+            "properties": {
+              "command": {"type": "array", "items": {"type": "string"}},
+              "args": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "gitSync": {
+            "type": "object",
+            "properties": {
+              "command": {"type": "array", "items": {"type": "string"}},
+              "args": {"type": "array", "items": {"type": "string"}},
+              "resourcesPreset": {"type": "string", "default": "nano"},
+              "resources": {"type": "object"}
+            }
+          },
+          "extraEnvVars": {"type": "array", "items": {"type": "object"}},
+          "extraEnvVarsSecret": {"type": "string"},
+          "extraVolumeMounts": {"type": "array", "items": {"type": "object"}}
+        }
+      },
+      "serverBlock": {"type": "string"},
       "service": {
         "type": "object",
-        "title": "Service Settings",
         "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
-            "default": "ClusterIP"
+          "type": {"type": "string", "default": "LoadBalancer"},
+          "ports": {
+            "type": "object",
+            "properties": {
+              "http": {"type": "number", "default": 80},
+              "https": {"type": "number", "default": 443}
+            }
           },
-          "port": {
-            "type": "integer",
-            "default": 80
-          }
+          "nodePorts": {
+            "type": "object",
+            "properties": {
+              "http": {"type": "string"},
+              "https": {"type": "string"}
+            }
+          },
+          "targetPort": {
+            "type": "object",
+            "properties": {
+              "http": {"type": "string", "default": "http"},
+              "https": {"type": "string", "default": "https"}
+            }
+          },
+          "clusterIP": {"type": "string"},
+          "loadBalancerIP": {"type": "string"},
+          "loadBalancerSourceRanges": {"type": "array", "items": {"type": "string"}},
+          "loadBalancerClass": {"type": "string"},
+          "extraPorts": {"type": "array", "items": {"type": "object"}},
+          "sessionAffinity": {"type": "string", "default": "None"},
+          "sessionAffinityConfig": {"type": "object"},
+          "annotations": {"type": "object"},
+          "externalTrafficPolicy": {"type": "string", "default": "Cluster"}
+        }
+      },
+      "networkPolicy": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": true},
+          "allowExternal": {"type": "boolean", "default": true},
+          "allowExternalEgress": {"type": "boolean", "default": true},
+          "extraIngress": {"type": "array", "items": {"type": "object"}},
+          "extraEgress": {"type": "array", "items": {"type": "object"}},
+          "ingressNSMatchLabels": {"type": "object"},
+          "ingressNSPodMatchLabels": {"type": "object"}
         }
       },
       "ingress": {
         "type": "object",
-        "title": "Ingress Settings",
         "properties": {
-          "enabled": {
-            "type": "boolean",
-            "default": false
+          "enabled": {"type": "boolean", "default": false},
+          "selfSigned": {"type": "boolean", "default": false},
+          "pathType": {"type": "string", "default": "ImplementationSpecific"},
+          "apiVersion": {"type": "string"},
+          "hostname": {"type": "string", "default": "nginx.local"},
+          "path": {"type": "string", "default": "/"},
+          "annotations": {"type": "object"},
+          "ingressClassName": {"type": "string"},
+          "tls": {"type": "boolean", "default": false},
+          "tlsWwwPrefix": {"type": "boolean", "default": false},
+          "extraHosts": {"type": "array", "items": {"type": "string"}},
+          "extraPaths": {"type": "array", "items": {"type": "object"}},
+          "extraTls": {"type": "array", "items": {"type": "object"}},
+          "secrets": {"type": "array", "items": {"type": "string"}},
+          "extraRules": {"type": "array", "items": {"type": "object"}}
+        }
+      },
+      "healthIngress": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": false},
+          "selfSigned": {"type": "boolean", "default": false},
+          "pathType": {"type": "string", "default": "ImplementationSpecific"},
+          "hostname": {"type": "string", "default": "example.local"},
+          "path": {"type": "string", "default": "/"},
+          "annotations": {"type": "object"},
+          "tls": {"type": "boolean", "default": false},
+          "extraHosts": {"type": "array", "items": {"type": "string"}},
+          "extraPaths": {"type": "array", "items": {"type": "object"}},
+          "extraTls": {"type": "array", "items": {"type": "object"}},
+          "secrets": {"type": "array", "items": {"type": "string"}},
+          "ingressClassName": {"type": "string"},
+          "extraRules": {"type": "array", "items": {"type": "object"}}
+        }
+      },
+      "metrics": {
+        "type": "object",
+        "properties": {
+          "enabled": {"type": "boolean", "default": false},
+          "image": {
+            "type": "object",
+            "properties": {
+              "registry": {"type": "string", "default": "docker.io"},
+              "repository": {"type": "string", "default": "bitnami/nginx-exporter"},
+              "tag": {"type": "string", "default": "1.1.0-debian-12-r15"},
+              "digest": {"type": "string"},
+              "pullPolicy": {"type": "string", "default": "IfNotPresent"},
+              "pullSecrets": {"type": "array", "items": {"type": "string"}}
+            }
           },
-          "hostname": {
-            "type": "string",
-            "default": "nginx.local"
+          "port": {"type": "string"},
+          "extraArgs": {"type": "array", "items": {"type": "string"}},
+          "containerPorts": {
+            "type": "object",
+            "properties": {
+              "metrics": {"type": "number", "default": 9113}
+            }
           },
-          "path": {
-            "type": "string",
-            "default": "/"
+          "podAnnotations": {"type": "object"},
+          "securityContext": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": false},
+              "seLinuxOptions": {"type": "object", "nullable": true},
+              "runAsUser": {"type": "number", "default": 1001}
+            }
           },
-          "tls": {
-            "type": "boolean",
-            "default": false
+          "service": {
+            "type": "object",
+            "properties": {
+              "port": {"type": "number", "default": 9113},
+              "annotations": {
+                "type": "object",
+                "properties": {
+                  "prometheus.io/scrape": {"type": "string", "default": "true"},
+                  "prometheus.io/port": {"type": "string"}
+                }
+              }
+            }
+          },
+          "resourcesPreset": {"type": "string", "default": "nano"},
+          "resources": {"type": "object"},
+          "serviceMonitor": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": false},
+              "namespace": {"type": "string"},
+              "jobLabel": {"type": "string"},
+              "interval": {"type": "string"},
+              "scrapeTimeout": {"type": "string"},
+              "selector": {"type": "object"},
+              "labels": {"type": "object"},
+              "relabelings": {"type": "array", "items": {"type": "object"}},
+              "metricRelabelings": {"type": "array", "items": {"type": "object"}},
+              "honorLabels": {"type": "boolean", "default": false}
+            }
+          },
+          "prometheusRule": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean", "default": false},
+              "namespace": {"type": "string"},
+              "additionalLabels": {"type": "object"},
+              "rules": {"type": "array", "items": {"type": "object"}}
+            }
           }
         }
       }
     }
   }
-  
+}
