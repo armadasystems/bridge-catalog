@@ -1,41 +1,6 @@
-{
-  "type": "object",
-  "viewSpec": {
-      "type": "base"
-  },
-  "order": [
-      "global"
-  ],
-  "properties": {
-      "global": {
-          "type": "object",
-          "order": [
-              "postgresql"
-          ],
-          "properties": {
-              "postgresql": {
-                  "type": "object",
-                  "properties": {
-                      "auth": {
-                          "type": "object",
-                          "properties": {
-                              "postgresPassword": {
-                                  "type": "string"
-                              },
-                              "username": {
-                                  "type": "string"
-                              },
-                              "password": {
-                                  "type": "string"
-                              },
-                              "database": {
-                                  "type": "string"
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      }
-  }
-}
+ "required": [
+                "postgresPassword",
+                "username",
+                "password",
+                "database"
+              ],
