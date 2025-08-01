@@ -10,9 +10,6 @@
         "global": {
             "type": "object",
             "order": [
-                "imageRegistry",
-                "imagePullSecrets",
-                "storageClass",
                 "postgresql"
             ],
             "properties": {
@@ -33,22 +30,6 @@
                                 },
                                 "database": {
                                     "type": "string"
-                                },
-                                "existingSecret": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "service": {
-                            "type": "object",
-                            "properties": {
-                                "ports": {
-                                    "type": "object",
-                                    "properties": {
-                                        "postgresql": {
-                                            "type": "string"
-                                        }
-                                    }
                                 }
                             }
                         }
