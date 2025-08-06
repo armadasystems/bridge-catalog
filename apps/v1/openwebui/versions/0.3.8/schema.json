@@ -13,7 +13,8 @@
         "properties": {
           "enabled": {
             "type": "boolean",
-            "default": true
+            "default": true,
+            "description": "Automatically install Ollama Helm chart from https://otwld.github.io/ollama-helm/."
           }
         }
       },
