@@ -1,18 +1,44 @@
 {
-  "type": "object",
-  "title": "ollama",
-  "properties": {
-    "enabled": {
-      "type": "boolean",
-      "default": true
-    },
     "type": "object",
-    "title": "pipelines",
+    "order": [
+      "ollama",
+      "pipelines"
+    ],
     "properties": {
-      "enabled": {
-        "type": "boolean",
-        "default": true
+      "ollama": {
+        "type": "object",
+        "order": [
+          "enabled",
+          "fullnameOverride"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "fullnameOverride": {
+            "type": "string",
+            "default": "open-webui-ollama"
+          }
+        }
+      },
+      "pipelines": {
+        "type": "object",
+        "order": [
+          "enabled",
+          "extraEnvVars"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "extraEnvVars": {
+            "type": "array",
+            "items": { "type": "object" },
+            "default": []
+          }
+        }
       }
     }
   }
-}
