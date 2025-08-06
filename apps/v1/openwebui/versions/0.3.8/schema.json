@@ -8,35 +8,24 @@
       "ollama": {
         "type": "object",
         "order": [
-          "enabled",
-          "fullnameOverride"
+          "enabled"
         ],
         "properties": {
           "enabled": {
             "type": "boolean",
             "default": true
-          },
-          "fullnameOverride": {
-            "type": "string",
-            "default": "open-webui-ollama"
           }
         }
       },
       "pipelines": {
         "type": "object",
         "order": [
-          "enabled",
-          "extraEnvVars"
-        ],
+          "enabled"
+          ],
         "properties": {
           "enabled": {
             "type": "boolean",
             "default": true
-          },
-          "extraEnvVars": {
-            "type": "array",
-            "items": { "type": "object" },
-            "default": []
           }
         }
       }
