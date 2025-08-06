@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "title": "ollama",
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "type": "object",
+    "title": "pipelines",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": true
+      }
+    }
+  }
+}
