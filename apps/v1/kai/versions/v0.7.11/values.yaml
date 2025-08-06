@@ -1,0 +1,130 @@
+# Copyright 2025 NVIDIA CORPORATION
+# SPDX-License-Identifier: Apache-2.0
+
+global:
+  registry: registry/local/kai-scheduler
+  securityContext: {}
+  imagePullSecrets: []
+  gpuSharing: false
+  clusterAutoscaling: false
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  namespaceLabelSelector: {}
+  podLabelSelector: {}
+  resourceReservation:
+    namespace: kai-resource-reservation
+    serviceAccount: kai-resource-reservation
+    appLabel: kai-resource-reservation
+
+
+podgrouper:
+  image:
+    name: podgrouper
+    pullPolicy: IfNotPresent
+  additionalArgs: []
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+  queueLabelKey: "kai.scheduler/queue"
+
+podgroupcontroller:
+  image:
+    name: podgroupcontroller
+    pullPolicy: IfNotPresent
+  additionalArgs: []
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+
+binder:
+  name: binder
+  image:
+    name: binder
+    pullPolicy: IfNotPresent
+  resourceReservationImage:
+    name: resourcereservation
+  certSecretName: binder-webhook-tls-secret
+  additionalArgs: []
+  ports:
+    webhookPort: 9443
+    metricsPort: 8080
+    probePort: 8081
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+  cdi: false
+
+scheduler:
+  image:
+    name: scheduler
+    pullPolicy: IfNotPresent
+  additionalArgs: []
+  placementStrategy: binpack
+  ports:
+    metricsPort: 8080
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+
+webhookmanager:
+  image:
+    name: webhookmanager
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+
+nodescaleadjuster:
+  image:
+    name: nodescaleadjuster
+    pullPolicy: IfNotPresent
+  scalingPodImage:
+    name: scalingpod
+  additionalArgs: []
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+
+queuecontroller:
+  image:
+    name: queuecontroller
+    pullPolicy: IfNotPresent
+  additionalArgs: []
+  certSecretName: queuecontroller-webhook-tls-secret
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "256Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+
+crdupgrader:
+  image:
+    name: crd-upgrader
+    pullPolicy: IfNotPresent

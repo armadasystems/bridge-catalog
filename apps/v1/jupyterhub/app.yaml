@@ -1,0 +1,16 @@
+name: "jupyterhub"
+displayName: "Jupyter Hub"
+description: "JupyterHub brings the power of notebooks to groups of users. It gives users access to computational environments and resources without burdening the users with installation and maintenance tasks."
+category: "AI"
+tags: ["ai", "notebook", "jupyter"]
+
+chart:
+  repoURL: "https://hub.jupyter.org/helm-chart/"
+  chartName: "jupyterhub"
+
+logoURL: "https://artifacthub.io/image/39f52286-150c-4417-a787-9306976c3e9e@2x"
+
+versions:
+  - chartVersion: "4.2.0"
+    appVersion: "5.3.0"
+    valuesFile: "values.yaml"
