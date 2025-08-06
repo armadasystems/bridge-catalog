@@ -1,0 +1,35 @@
+{
+    "type": "object",
+    "order": [
+      "ollama",
+      "pipelines"
+    ],
+    "properties": {
+      "ollama": {
+        "type": "object",
+        "order": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "  Automatically install Ollama Helm chart from https://otwld.github.io/ollama-helm/."
+          }
+        }
+      },
+      "pipelines": {
+        "type": "object",
+        "order": [
+          "enabled"
+          ],
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "  Automatically install Pipelines chart to extend Open WebUI functionality using Pipelines: https://github.com/open-webui/pipelines"
+          }
+        }
+      }
+    }
+  }
