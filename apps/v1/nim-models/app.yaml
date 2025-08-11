@@ -1,0 +1,17 @@
+name: "nim-models"
+displayName: "Nvidia NIM"
+description: "NVIDIA NIM™ provides containers to self-host GPU-accelerated inferencing microservices for pretrained and customized AI models across clouds, data centers, and RTX™ AI PCs and workstations."
+category: "AI"
+tags: ["chat", "nim", "text-generation"]
+
+chart:
+  repoURL: "https://gitlab.com/MohanDhandapani/avcs/-/raw/main"
+  chartName: "nim-models"
+
+logoURL: "https://developer.download.nvidia.com/icons/m48-nim-256px-blk.png"
+
+versions:
+  - chartVersion: "0.1.1"
+    appVersion: "0.1.0"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"
