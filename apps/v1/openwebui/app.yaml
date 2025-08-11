@@ -12,6 +12,6 @@ logoURL: "https://artifacthub.io/image/53d07d19-9402-43d6-8619-fffa5683299e@2x"
 
 versions:
   - chartVersion: "7.0.1"
-    appVersion: "0.3.8"
+    appVersion: "0.6.18"
     schemaFile: "schema.json"
     valuesFile: "values.yaml"
