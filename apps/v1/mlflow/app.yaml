@@ -8,7 +8,7 @@ chart:
   repoURL: "https://community-charts.github.io/helm-charts"
   chartName: "mlflow"
 
-logoURL: "https://artifacthub.io/image/911c281a-2e20-48c9-b0e6-c65639b8446b@2x"
+logoURL: "https://app-catalog-logos.s3.us-west-2.amazonaws.com/mlflow_logo.svg"
 
 versions:
   - chartVersion: "1.6.2"
