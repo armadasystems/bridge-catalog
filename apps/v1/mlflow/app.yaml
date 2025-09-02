@@ -1,6 +1,6 @@
 name: "mlflow"
-displayName: "ML Flow"
-description: "Mlflow open source platform for the machine learning lifecycle"
+displayName: "MLflow"
+description: "MLflow is a platform for managing the machine learning lifecycle—tracking experiments, packaging code, and deploying or sharing models. It integrates with popular ML libraries (TensorFlow, PyTorch, XGBoost, etc.) but works with any library or tool."
 category: "MLOps"
 tags: ["mlflow", "mlops"]
 
@@ -8,7 +8,7 @@ chart:
   repoURL: "https://community-charts.github.io/helm-charts"
   chartName: "mlflow"
 
-logoURL: "https://mlflow.org/docs/2.1.1/_static/MLflow-logo-final-black.png"
+logoURL: "https://artifacthub.io/image/911c281a-2e20-48c9-b0e6-c65639b8446b@2x"
 
 versions:
   - chartVersion: "1.6.2"
