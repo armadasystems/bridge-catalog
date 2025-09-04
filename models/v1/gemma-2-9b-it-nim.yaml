@@ -20,4 +20,4 @@ resourceRequirements:
   minRequiredRamInGb: 32
   minRequiredVramInGb: 28
   requiredDiscSizeInGb: 20
-dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+dType: []
