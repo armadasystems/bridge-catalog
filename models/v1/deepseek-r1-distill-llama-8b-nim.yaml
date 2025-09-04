@@ -1,0 +1,23 @@
+modelId: deepseek-ai/deepseek-r1-distill-llama-8b
+name: Deepseek R1 Distill Llama 8B
+description: An 8B parameter distilled Llama variant designed for efficient, high-quality chat interactions.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: ""
+repoUrl: "https://build.nvidia.com/deepseek-ai/deepseek-r1-distill-llama-8b"
+provider: nim
+source:
+  type: nim
+  revision: ""
+  version: "1.5.2"
+  repository: ""
+  requiresAuth: true
+  license: ""
+  containerImage: "nvcr.io/nim/deepseek-ai/deepseek-r1-distill-llama-8b"
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 32
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 20
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]

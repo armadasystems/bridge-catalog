@@ -1,0 +1,23 @@
+modelId: google/gemma-2-2b-instruct
+name: Gemma-2 2B IT
+description: A lightweight 2B parameter instruction-tuned model for fast, low-resource conversational tasks.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: ""
+repoUrl: "https://build.nvidia.com/google/gemma-2-2b-it"
+provider: nim
+source:
+  type: nim
+  revision: ""
+  version: "1.4.0"
+  repository: ""
+  requiresAuth: true
+  license: ""
+  containerImage: "nvcr.io/nim/google/gemma-2-2b-instruct"
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 24
+  minRequiredVramInGb: 16
+  requiredDiscSizeInGb: 10
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]

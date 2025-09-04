@@ -1,0 +1,23 @@
+modelId: meta/llama-3.2-3b-instruct
+name: Llama-3.2 3B Instruct
+description: An 3B parameter Llama model instruction-tuned for reliable conversational AI.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: ""
+repoUrl: "https://build.nvidia.com/meta/llama-3.2-3b-instruct"
+provider: nim
+source:
+  type: nim
+  revision: ""
+  version: "1.8.4"
+  repository: ""
+  requiresAuth: true
+  license: ""
+  containerImage: "nvcr.io/nim/meta/llama-3.2-3b-instruct"
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 24
+  minRequiredVramInGb: 18
+  requiredDiscSizeInGb: 15
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
