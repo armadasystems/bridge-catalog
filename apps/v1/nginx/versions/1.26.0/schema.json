@@ -21,7 +21,7 @@
           },
           "tag": {
             "type": "string",
-            "default": "1.21.0-debian-10-r0"
+            "default": "1.26.0-debian-12-r0"
           },
           "pullPolicy": {
             "type": "string",
