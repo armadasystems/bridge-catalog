@@ -1,0 +1,17 @@
+name: "ai-ran"
+displayName: "AI RAN"
+description: "Sample AI RAN application."
+category: "AI"
+tags: ["ran"]
+
+chart:
+  repoURL: "https://gitlab.com/MohanDhandapani/avcs/-/raw/main"
+  chartName: "llama3-8b-helm"
+
+logoURL: "https://www.nokia.com/sites/default/files/2025-08/01_on-1.png?height=246&width=437"
+
+versions:
+  - chartVersion: "0.1.0"
+    appVersion: "0.1.1"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"
