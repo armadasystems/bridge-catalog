@@ -1,9 +1,0 @@
-{
-  "type": "object",
-  "required": ["ngcApiKey"],
-  "properties": {
-    "ngcApiKey": {
-      "type": "string"
-    }
-  }
-}
