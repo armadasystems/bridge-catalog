@@ -1,0 +1,23 @@
+modelId: meta-llama/Llama-4-Scout-17B-16E
+name: Llama4 Scout 17B
+description: Llama 4 Scout, a 17 billion parameter model with 16 experts. It's a language model optimized for conversational AI and general chat use cases.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
+repoUrl: "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E"
+  requiresAuth: false
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb:
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
