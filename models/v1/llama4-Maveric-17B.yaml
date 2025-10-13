@@ -1,6 +1,6 @@
 modelId: meta-llama/Llama-4-Maverick-17B-128E
-name: Llama4 Scout 17B
-description: Llama 4 Scout, a 17 billion parameter model with 16 experts. It's a language model optimized for conversational AI and general chat use cases.
+name: Llama4 Maverick 17B
+description: Llama 4 Maverick, a 17 billion parameter model with 128 experts. It's a language model optimized for conversational AI and general chat use cases.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
