@@ -1,6 +1,6 @@
 modelId: google/gemma-3-27b-it
 name: Google Gemma-3 27B
-description: Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.
+description: The Gemma-3 27B model represents Google's instruction-tuned, 27-billion-parameter entry in the Gemma family of lightweight, open models.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
