@@ -1,0 +1,23 @@
+modelId: meta/llama-3_1-8b-instruct
+name: Meta Llama 8B Instruct
+description: An 8B parameter Llama model instruction-tuned for reliable conversational AI.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: ""
+repoUrl: "https://build.nvidia.com/meta/llama-3_1-8b-instruct"
+provider: nim
+source:
+  type: nim
+  revision: ""
+  version: "1.8"
+  repository: ""
+  requiresAuth: true
+  license: ""
+  containerImage: "nvcr.io/nim/meta/llama-3.1-8b-instruct"
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 32
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 20
+dType: []

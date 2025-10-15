@@ -1,0 +1,23 @@
+modelId: mistralai/Mistral-7B-Instruct-v0.2
+name: Mistral 7B Instruct
+description: A 7B parameter base chat model for general conversational tasks.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://nvidia.nim.io/mistralai/Mistral-7B-Instruct-v0.2"
+provider: nim
+source:
+  type: nim
+  revision: ""
+  version: "1.0"
+  repository: ""
+  requiresAuth: true
+  license: ""
+  containerImage: "nvcr.io/nim/mistralai/Mistral-7B-Instruct-v0.2"
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 32
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 20
+dType: []
