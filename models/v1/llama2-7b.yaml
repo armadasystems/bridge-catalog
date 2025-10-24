@@ -1,7 +1,7 @@
 # llama2-7b.yaml
 modelId: meta-llama/Meta-Llama-3-8B-Instruct
 name: Llama 3 8B Instruct
-description: A 3B parameter instruction-tuned model for dialogue and assistant-style use cases.
+description: Llama3 a 3B parameter instruction-tuned model for dialogue and assistant-style use cases.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational", "instruction-following"]
