@@ -5,7 +5,7 @@ category: "Infrastructure"
 tags: ["nginx", "web", "proxy"]
 
 chart:
-  repoURL: "https://charts.bitnami.com/bitnami"
+  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
   chartName: "nginx"
 
 logoURL: "https://artifacthub.io/image/df8b0c56-3686-47ad-b3cf-44ab4c2ef096@1x"

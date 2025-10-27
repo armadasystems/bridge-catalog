@@ -1,6 +1,6 @@
 {
     "type": "object",
-    "required": ["replicaCount", "service.type"],
+    "required": ["replicaCount"],
     "properties": {
       "replicaCount": {
         "type": "integer",
