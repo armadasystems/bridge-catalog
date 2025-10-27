@@ -5,7 +5,7 @@ category: "MLOps"
 tags: ["mlflow", "mlops"]
 
 chart:
-  repoURL: "https://community-charts.github.io/helm-charts"
+  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
   chartName: "mlflow"
 
 logoURL: "https://app-catalog-logos.s3.us-west-2.amazonaws.com/mlflow_logo.svg"
