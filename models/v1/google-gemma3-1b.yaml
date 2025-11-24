@@ -1,17 +1,17 @@
-modelId: google/gemma-3-27b-it
-name: Google Gemma-3 27B
-description: The Gemma-3 27B model represents Google's instruction-tuned, 27-billion-parameter entry in the Gemma family of lightweight, open models.
+modelId: google/gemma-3-1b-it
+name: Google Gemma-3 1B IT
+description: Gemma 3 is Google's lightweight multimodal AI model for text/image generation, offering optimized performance, deployment ease, and improved safety.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/5dd96eb166059660ed1ee413/WtA3YYitedOr9n02eHfJe.png"
-repoUrl: "https://huggingface.co/google/gemma-3-27b-it"
+repoUrl: "https://huggingface.co/google/gemma-3-1b-it"
 provider: huggingface
 source:
   type: huggingface
   revision: "main"
   version: ""
-  repository: "https://huggingface.co/google/gemma-3-27b-it"
+  repository: "https://huggingface.co/google/gemma-3-1b-it"
   requiresAuth: false
   license: "custom"
   containerImage: ""
