@@ -1,6 +1,6 @@
 modelId: Qwen/Qwen2.5-1.5B-Instruct
-name: Qwen2.5 5B Instruct
-description: A 5B parameter instruction-tuned model for conversational and task-oriented dialogue.
+name: Qwen2.5 1.5B Instruct
+description: A 1.5B parameter instruction-tuned model for conversational and task-oriented dialogue.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
@@ -21,3 +21,5 @@ resourceRequirements:
   minRequiredVramInGb: 20
   requiredDiscSizeInGbInGb:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 32768

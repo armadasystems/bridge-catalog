@@ -21,3 +21,5 @@ resourceRequirements:
   minRequiredVramInGb: 18
   requiredDiscSizeInGb: 15
 dType: []
+config:
+  maxPositionEmbeddings: 0
