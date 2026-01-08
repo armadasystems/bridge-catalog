@@ -1,17 +1,17 @@
-modelId: meta-llama/Llama-2-13b-chat
-name: Meta Llama-2 13b-chat
-description: Llama 2 is a collection of pretrained and fine-tuned generative text models ranging in scale from 7 billion to 70 billion parameters. This is the repository for the 13B fine-tuned model, optimized for dialogue use cases. Links to other models can be found in the index at the bottom.
+modelId: meta-llama/Llama-2-13b-hf
+name: Meta Llama-2 13b-hf
+description: Llama 2 is a collection of pretrained and fine-tuned generative text models. This 13B fine-tuned model, optimized for dialogue use cases. Links to other models can be found in the index at the bottom.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
-repoUrl: "https://huggingface.co/meta-llama/Llama-2-13b-chat"
+repoUrl: "https://huggingface.co/meta-llama/Llama-2-13b-hf"
 provider: huggingface
 source:
   type: huggingface
   revision: "main"
   version: ""
-  repository: "https://huggingface.co/meta-llama/Llama-2-13b-chat"
+  repository: "https://huggingface.co/meta-llama/Llama-2-13b-hf"
   requiresAuth: false
   license: "custom"
   containerImage: ""
