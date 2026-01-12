@@ -6,7 +6,7 @@ tags: ["ran"]
 
 chart:
   repoURL: "https://gitlab.com/MohanDhandapani/avcs/-/raw/main"
-  chartName: "google-gemma-2b-helm"
+  chartName: "mistral-7b-instruct-v0-3"
 
 logoURL: "https://www.nokia.com/sites/default/files/2025-08/01_on-1.png?height=246&width=437"
 
