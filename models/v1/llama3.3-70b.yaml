@@ -1,0 +1,26 @@
+# llama3.3-70b.yaml
+modelId: meta-llama/Llama-3.3-70B-Instruct
+name: Llama 3.3 70B Instruct
+description: The Meta Llama 3.3 multilingual large language model (LLM) is an instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimized for multilingual dialogue use cases and outperforms many of the available open source and closed chat models on common industry benchmarks.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
+repoUrl: "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"
+  requiresAuth: true
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb:
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 32768
