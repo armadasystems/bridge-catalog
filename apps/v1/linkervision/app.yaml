@@ -1,0 +1,16 @@
+name: "linkervision"
+displayName: "Linker Vision Observ"
+description: "Deploy Vision Models and VLMs at scale for real-time, context-aware perception & reasoning."
+category: "AI/ML"
+tags: ["ai", "ml"]
+
+chart:
+  repoURL: "oci://730335631215.dkr.ecr.us-west-2.amazonaws.com/helm/observ-edge-umbrella"
+  chartName: "mlflow"
+
+logoURL: "https://static.wixstatic.com/media/575594_19999baf065e420e9b9ca2faa438ee61~mv2.png/v1/fill/w_350,h_96,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/575594_19999baf065e420e9b9ca2faa438ee61~mv2.png"
+
+versions:
+  - chartVersion: "0.1.5"
+    appVersion: "0.1.5"
+    valuesFile: "values.yaml"
