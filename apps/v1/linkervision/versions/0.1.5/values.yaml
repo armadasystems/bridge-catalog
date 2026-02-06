@@ -7,9 +7,9 @@ observ-edge:
     workspace: 48df843d-42b1-496f-b689-a711dd6bf8ec
     prometheus: http://prometheus-kube-prometheus-prometheus.monitor:9090
     agentOrganization: Vision AI
-    turnServerUrl: ''
-    turnUsername: ''
-    turnPassword: ''
+    turnServerUrl: ""
+    turnUsername: ""
+    turnPassword: ""
   image:
     cr: observcr.azurecr.io
     tag: 3.7.0

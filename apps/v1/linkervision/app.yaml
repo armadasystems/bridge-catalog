@@ -5,13 +5,13 @@ category: "AI/ML"
 tags: ["ai", "ml"]
 
 chart:
-  repoURL: "oci://730335631215.dkr.ecr.us-west-2.amazonaws.com/helm/observ-edge-umbrella"
-  chartName: "mlflow"
+  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
+  chartName: "observ-edge-umbrella"
 
 logoURL: "https://static.wixstatic.com/media/575594_19999baf065e420e9b9ca2faa438ee61~mv2.png/v1/fill/w_350,h_96,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/575594_19999baf065e420e9b9ca2faa438ee61~mv2.png"
 
 versions:
   - chartVersion: "0.1.5"
-    appVersion: "0.1.5"
+    appVersion: "0.1.0"
     valuesFile: "values.yaml"
     schemaFile: "schema.json"
