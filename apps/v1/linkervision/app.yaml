@@ -12,6 +12,6 @@ logoURL: "https://static.wixstatic.com/media/575594_19999baf065e420e9b9ca2faa438
 
 versions:
   - chartVersion: "0.1.5"
-    appVersion: "0.1.0"
+    appVersion: "0.1.5"
     valuesFile: "values.yaml"
     schemaFile: "schema.json"
