@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "required": ["ingress"],
+  "properties": {
+    "ingress": {
+      "type": "object",
+      "title": "Ingress",
+      "required": ["host"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable Ingress",
+          "default": true
+        },
+        "host": {
+          "type": "string",
+          "title": "Hostname",
+          "default": "qwen32.primalabs.com"
+        }
+      }
+    }
+  }
+}
