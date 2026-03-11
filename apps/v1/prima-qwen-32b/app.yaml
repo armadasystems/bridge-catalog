@@ -13,4 +13,5 @@ logoURL: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAD
 versions:
   - chartVersion: "0.1.0"
     appVersion: "0.1.0"
+    schemaFile: "schema.json"
     valuesFile: "values.yaml"
