@@ -1,4 +1,4 @@
-modelId: mistralai/mistral-7b-instruct-v03
+modelId: mistralai/mistral-7b-instruct-v0-3
 name: Mistral 7B Instruct
 description: A 7B parameter instruction-tuned model for efficient and fluent conversational use.
 type: text-generation
