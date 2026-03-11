@@ -1,4 +1,4 @@
-modelId: nvidia/llama-3_1-nemotron-nano-8b-v1
+modelId: nvidia/llama-3.1-nemotron-nano-8b-v1
 name: Llama 3.1 Nemotron Nano 8B v1
 description: An 8B parameter Nemotron-based model specialized for dialogue and assistant-oriented tasks.
 type: text-generation
