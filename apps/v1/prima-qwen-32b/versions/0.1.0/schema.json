@@ -1,11 +1,38 @@
 {
   "type": "object",
-  "required": ["ingress"],
+  "required": [
+    "ingress",
+    "properties"
+  ],
   "properties": {
+    "engine": {
+      "type": "object",
+      "title": "Engine",
+      "required": [
+        "profile"
+      ],
+      "properties": {
+        "profile": {
+          "type": "string",
+          "title": "Profile",
+          "default": "balanced",
+          "enum": [
+            "balanced",
+            "throughput",
+            "latency",
+            "power",
+            "cost",
+            "baseline"
+          ]
+        }
+      }
+    },
     "ingress": {
       "type": "object",
       "title": "Ingress",
-      "required": ["host"],
+      "required": [
+        "host"
+      ],
       "properties": {
         "enabled": {
           "type": "boolean",
@@ -15,7 +42,7 @@
         "host": {
           "type": "string",
           "title": "Hostname",
-          "default": "qwen32.primalabs.com"
+          "default": "armada.primalabs.com"
         }
       }
     }
