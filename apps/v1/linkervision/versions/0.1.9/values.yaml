@@ -1,0 +1,47 @@
+--- 
+observ-edge:
+  observVlmServiceUrl: https://visionai.linkervision.ai/observ/observ-vlm-service
+  offline: false
+  dns: no-webrtc
+
+  edgeAgent:
+    address: https://no/
+    name: vm-c-fca3e
+    workspace: 48df843d-42b1-496f-b689-a711dd6bf8ec
+    prometheus: http://prometheus-kube-prometheus-prometheus.monitor:9090
+    agentOrganization: Vision AI
+    turnServerUrl: ""
+    turnUsername: ""
+    turnPassword: ""
+
+  image:
+    cr: observcr.azurecr.io
+    tag: "3.8.3"
+
+  mediaProviderUrl: https://visionai.linkervision.ai/observ/media-provider
+  ingressClassName: public
+
+  streamAgent:
+    broker: mqtt
+    mqttHost: mqtt-prod.visionai.linkervision.ai
+    mqttPort: 1883
+    mqttPassword: 5OmpMBLoQUfKVWdMPpws
+    mqttTopic: 48df843d-42b1-496f-b689-a711dd6bf8ec
+    mqttUser: 6d16e5a5-4a32-4c97-85d9-fbd35cf3d429
+    deviceId: 48df843d-42b1-496f-b689-a711dd6bf8ec
+    use_minio: false
+
+  webServerUrl: https://visionai.linkervision.ai/observ/
+  webUiUrl: https://visionai.linkervision.ai/observ/
+
+  registry_url: observcr.azurecr.io
+
+  mctPostprocessor:
+    enable: false
+    kafkaHost: kafka
+    kafkaPort: 9092
+    kafkaTopicPatterns: mdx-rtls-*,mdx-its-*
+    worksapce: 48df843d-42b1-496f-b689-a711dd6bf8ec
+
+  registry_username: t-48df843d-42b1-496f-b689-a711dd6bf8ec-vm-c-fca3e
+  registry_password: 1CowOGHu2mjmEKj6LaS9upwV4poH2g4VyF0jxn3k2zYP7f8qFrxfJQQJ99CCACqBBLyEqg7NAAABAZCRAfO5

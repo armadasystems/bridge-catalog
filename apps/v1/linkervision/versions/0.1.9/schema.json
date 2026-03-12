@@ -1,0 +1,193 @@
+{
+    "type": "object",
+    "required": ["observ-edge"],
+    "properties": {
+      "observ-edge": {
+        "type": "object",
+        "title": "Observ Edge Configuration",
+        "properties": {
+          "observVlmServiceUrl": {
+            "type": "string",
+            "title": "Observ VLM Service URL",
+            "default": "https://visionai.linkervision.ai/observ/observ-vlm-service"
+          },
+          "offline": {
+            "type": "boolean",
+            "title": "Offline Mode",
+            "default": false
+          },
+          "dns": {
+            "type": "string",
+            "title": "DNS",
+            "default": "no-webrtc"
+          },
+          "edgeAgent": {
+            "type": "object",
+            "title": "Edge Agent",
+            "properties": {
+              "address": {
+                "type": "string",
+                "title": "Address",
+                "default": "https://no-webrtc/"
+              },
+              "name": {
+                "type": "string",
+                "title": "Name",
+                "default": "cluster2"
+              },
+              "workspace": {
+                "type": "string",
+                "title": "Workspace"
+              },
+              "prometheus": {
+                "type": "string",
+                "title": "Prometheus URL",
+                "default": "http://prometheus-kube-prometheus-prometheus.monitor:9090"
+              },
+              "agentOrganization": {
+                "type": "string",
+                "title": "Agent Organization",
+                "default": "Vision AI"
+              },
+              "turnServerUrl": {
+                "type": "string",
+                "title": "TURN Server URL",
+                "default": ""
+              },
+              "turnUsername": {
+                "type": "string",
+                "title": "TURN Username",
+                "default": ""
+              },
+              "turnPassword": {
+                "type": "string",
+                "title": "TURN Password",
+                "default": ""
+              }
+            }
+          },
+          "image": {
+            "type": "object",
+            "title": "Image Configuration",
+            "properties": {
+              "cr": {
+                "type": "string",
+                "title": "Container Registry",
+                "default": "observcr.azurecr.io"
+              },
+              "tag": {
+                "type": "string",
+                "title": "Image Tag",
+                "default": "3.8.3"
+              }
+            }
+          },
+          "mediaProviderUrl": {
+            "type": "string",
+            "title": "Media Provider URL",
+            "default": "https://visionai.linkervision.ai/observ/media-provider"
+          },
+          "ingressClassName": {
+            "type": "string",
+            "title": "Ingress Class Name",
+            "default": "public"
+          },
+          "streamAgent": {
+            "type": "object",
+            "title": "Stream Agent",
+            "properties": {
+              "broker": {
+                "type": "string",
+                "title": "Broker",
+                "default": "mqtt"
+              },
+              "mqttHost": {
+                "type": "string",
+                "title": "MQTT Host",
+                "default": "mqtt-prod.visionai.linkervision.ai"
+              },
+              "mqttPort": {
+                "type": "integer",
+                "title": "MQTT Port",
+                "default": 1883
+              },
+              "mqttPassword": {
+                "type": "string",
+                "title": "MQTT Password"
+              },
+              "mqttTopic": {
+                "type": "string",
+                "title": "MQTT Topic"
+              },
+              "mqttUser": {
+                "type": "string",
+                "title": "MQTT User"
+              },
+              "deviceId": {
+                "type": "string",
+                "title": "Device ID"
+              },
+              "use_minio": {
+                "type": "boolean",
+                "title": "Use MinIO",
+                "default": false
+              }
+            }
+          },
+          "webServerUrl": {
+            "type": "string",
+            "title": "Web Server URL",
+            "default": "https://visionai.linkervision.ai/observ/"
+          },
+          "webUiUrl": {
+            "type": "string",
+            "title": "Web UI URL",
+            "default": "https://visionai.linkervision.ai/observ/"
+          },
+          "registry_url": {
+            "type": "string",
+            "title": "Registry URL",
+            "default": "observcr.azurecr.io"
+          },
+          "mctPostprocessor": {
+            "type": "object",
+            "title": "MCT Postprocessor",
+            "properties": {
+              "enable": {
+                "type": "boolean",
+                "title": "Enable",
+                "default": false
+              },
+              "kafkaHost": {
+                "type": "string",
+                "title": "Kafka Host",
+                "default": "kafka"
+              },
+              "kafkaPort": {
+                "type": "integer",
+                "title": "Kafka Port",
+                "default": 9092
+              },
+              "kafkaTopicPatterns": {
+                "type": "string",
+                "title": "Kafka Topic Patterns",
+                "default": "mdx-rtls-*,mdx-its-*"
+              },
+              "worksapce": {
+                "type": "string",
+                "title": "Workspace"
+              }
+            }
+          },
+          "registry_username": {
+            "type": "string",
+            "title": "Registry Username"
+          },
+          "registry_password": {
+            "type": "string",
+            "title": "Registry Password"
+          }
+        }
+      }
+    }
+  }
