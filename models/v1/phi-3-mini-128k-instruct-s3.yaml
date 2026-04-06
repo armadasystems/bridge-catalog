@@ -6,9 +6,10 @@ version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/1583646260758-5e64858c87403103f9f1055d.png"
 repoUrl: ""
-provider: S3
+provider: s3
 source:
-  type: S3
+  type: s3
+  path: "s3://model-registry/microsoft/Phi-3-mini-128k-instruct"
   revision: "main"
   version: ""
   repository: ""
