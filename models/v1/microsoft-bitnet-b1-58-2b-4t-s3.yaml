@@ -1,0 +1,40 @@
+modelId: microsoft-bitnet-b1-58-2b-4t
+name: bitnet-b1.58-2B-4T
+description: 'HuggingFace model: microsoft/bitnet-b1.58-2B-4T'
+type: text-generation
+version: 1.0.0
+tags:
+- safetensors
+- bitnet
+- text-generation
+- chat
+- large-language-model
+- conversational
+- custom_code
+- en
+logoUrl: ''
+repoUrl: https://huggingface.co/microsoft/bitnet-b1.58-2B-4T
+provider: s3
+source:
+  type: s3
+  path: s3://model-registry/models/microsoft--bitnet-b1.58-2B-4T/
+  revision: main
+  version: ''
+  repository: ''
+  requiresAuth: false
+  license: mit
+  containerImage: ''
+  apiEndpoint: ''
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb:
+dType:
+- auto
+- bfloat16
+- float
+- float16
+- float32
+- half
+config:
+  maxPositionEmbeddings: 1024
