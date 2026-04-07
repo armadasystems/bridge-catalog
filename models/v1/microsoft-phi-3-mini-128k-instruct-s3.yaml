@@ -1,0 +1,40 @@
+modelId: microsoft-phi-3-mini-128k-instruct
+name: Phi-3-mini-128k-instruct
+description: 'HuggingFace model: microsoft/Phi-3-mini-128k-instruct'
+type: text-generation
+version: 1.0.0
+tags:
+- safetensors
+- phi3
+- text-generation
+- nlp
+- code
+- conversational
+- custom_code
+- en
+logoUrl: ''
+repoUrl: https://huggingface.co/microsoft/Phi-3-mini-128k-instruct
+provider: s3
+source:
+  type: s3
+  path: s3://model-registry/models/microsoft--Phi-3-mini-128k-instruct/
+  revision: main
+  version: ''
+  repository: ''
+  requiresAuth: false
+  license: mit
+  containerImage: ''
+  apiEndpoint: ''
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb:
+dType:
+- auto
+- bfloat16
+- float
+- float16
+- float32
+- half
+config:
+  maxPositionEmbeddings: 1024
