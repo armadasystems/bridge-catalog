@@ -23,4 +23,4 @@ resourceRequirements:
   requiredDiscSizeInGb:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
-  maxPositionEmbeddings: 131072
+  maxPositionEmbeddings: 1024
