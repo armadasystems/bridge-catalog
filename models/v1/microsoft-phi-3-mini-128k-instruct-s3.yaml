@@ -37,4 +37,4 @@ dType:
 - float32
 - half
 config:
-  maxPositionEmbeddings: 1024
+  maxPositionEmbeddings: 131072
