@@ -1,0 +1,25 @@
+modelId: azure/qwen2.5-1.5b-instruct
+name: Qwen2.5 1.5B Instruct (Azure)
+description: A 1.5B parameter instruction-tuned model for conversational and task-oriented dialogue.
+type: text-generation
+provider: azureml
+tags:
+  - text
+  - chat
+  - conversational
+dType:
+  - auto
+  - float16
+  - bfloat16
+source:
+  type: azureml
+  azureModelName: Qwen2.5-1.5B-Instruct
+  version: "1"
+  requiresAuth: true
+resourceRequirements:
+  minRequiredRamInGb: 4
+  minRequiredVramInGb: 8
+  requiredDiscSizeInGb: 50
+config:
+  maxPositionEmbeddings: 32768
+
