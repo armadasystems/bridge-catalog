@@ -4,14 +4,8 @@ description: 'HuggingFace model: microsoft/Phi-3-mini-128k-instruct'
 type: text-generation
 version: 1.0.0
 tags:
-- safetensors
 - phi3
 - text-generation
-- nlp
-- code
-- conversational
-- custom_code
-- en
 logoUrl: ''
 repoUrl: https://huggingface.co/microsoft/Phi-3-mini-128k-instruct
 provider: s3
@@ -37,4 +31,4 @@ dType:
 - float32
 - half
 config:
-  maxPositionEmbeddings: 131072
+  maxPositionEmbeddings: 131076
