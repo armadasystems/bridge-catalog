@@ -1,0 +1,25 @@
+modelId: openai/gpt-oss-120b
+name: OpenAI gpt-oss 120B
+description: OpenAI gpt-oss 120 billion parameters model is designed for powerful reasoning, agentic tasks, and versatile developer use cases.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/68783facef79a05727260de3/UPX5RQxiPGA-ZbBmArIKq.png"
+repoUrl: "https://huggingface.co/openai/gpt-oss-120b"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/openai/gpt-oss-120b"
+  requiresAuth: false
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb:
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 2048
