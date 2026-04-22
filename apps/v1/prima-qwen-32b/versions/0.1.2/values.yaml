@@ -1,0 +1,99 @@
+# ============================================================
+# PrimaServe Helm Chart - Default Values
+# ============================================================
+
+namespace: primaserve
+
+# ------------------------------------------------------------
+# Engine (LLM Inference)
+# ------------------------------------------------------------
+# type: vllm | sglang — picked via catalog schema; drives image with profile rules below.
+engine:
+  enabled: true
+  type: vllm
+  # Optional. If set, image resolution from type/profile is skipped.
+  image: ""
+  replicas: 1
+  port: 8000
+  # Empty or "none" → upstream (vllm/vllm-openai or lmsysorg/sglang). Else → Primalabs H100 images.
+  profile: balanced
+  serverHost: "0.0.0.0"
+  gpu:
+    count: "1"
+  shm:
+    sizeLimit: 64Gi
+  service:
+    name: primaserve-engine
+    type: ClusterIP
+    port: 8000
+  probes:
+    initialDelaySeconds: 300
+    periodSeconds: 60
+    timeoutSeconds: 10
+    failureThreshold: 20
+
+# ------------------------------------------------------------
+# DCGM Exporter (GPU Metrics)
+# ------------------------------------------------------------
+dcgmExporter:
+  enabled: true
+  image: nvidia/dcgm-exporter:latest
+  port: 9400
+  runtimeClassName: nvidia
+  service:
+    type: ClusterIP
+    port: 9400
+  probes:
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+
+# ------------------------------------------------------------
+# Prometheus
+# ------------------------------------------------------------
+prometheus:
+  enabled: true
+  image: primalabs/monitoring:prometheus
+  port: 9090
+  storage:
+    size: 10Gi
+  service:
+    type: ClusterIP
+    port: 9090
+  probes:
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+
+# ------------------------------------------------------------
+# Grafana
+# ------------------------------------------------------------
+grafana:
+  enabled: true
+  image: primalabs/monitoring:grafana
+  port: 3000
+  adminUser: admin
+  adminPassword: "Primalabs@123"
+  allowSignUp: "false"
+  storage:
+    size: 5Gi
+  service:
+    type: ClusterIP
+    port: 3000
+  probes:
+    initialDelaySeconds: 20
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+
+# ------------------------------------------------------------
+# Ingress
+# ------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  host: test.primalabs.com
+  grafanaPath: /
+  enginePath: /v1

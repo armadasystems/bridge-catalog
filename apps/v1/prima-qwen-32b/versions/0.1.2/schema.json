@@ -1,0 +1,88 @@
+{
+  "type": "object",
+  "required": [
+    "ingress",
+    "properties"
+  ],
+  "properties": {
+    "engine": {
+      "type": "object",
+      "title": "Engine",
+      "required": [
+        "type",
+        "profile"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "Engine type",
+          "description": "Inference runtime. vllm and sglang each map to a Primalabs or upstream image depending on profile.",
+          "default": "vllm",
+          "enum": [
+            "vllm",
+            "sglang"
+          ]
+        },
+        "profile": {
+          "type": "string",
+          "title": "Profile",
+          "description": "none or empty uses public upstream images; any other value uses Primalabs model images (e.g. balanced).",
+          "default": "balanced",
+          "enum": [
+            "none",
+            "balanced",
+            "throughput",
+            "latency",
+            "power",
+            "cost",
+            "baseline"
+          ]
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "title": "Ingress",
+      "order": [
+        "enabled",
+        "host"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable Ingress",
+          "default": true,
+          "description": "When enabled, a hostname is required for the ingress."
+        }
+      },
+      "dependencies": {
+        "enabled": {
+          "oneOf": [
+            {
+              "properties": {
+                "enabled": {
+                  "const": false
+                }
+              }
+            },
+            {
+              "properties": {
+                "enabled": {
+                  "const": true
+                },
+                "host": {
+                  "type": "string",
+                  "title": "Hostname",
+                  "default": "armada.primalabs.com"
+                }
+              },
+              "required": [
+                "host"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
