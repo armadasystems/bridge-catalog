@@ -1,12 +1,12 @@
 name: "prima-qwen-32b"
 displayName: "PrimaLabs Qwen3.2 32B"
-description: "PrimaLabs' deployment of the Qwen 3.2 32B model, served via SGLang for efficient token throughput and low-latency inference. Production-ready for enterprise workloads."
+description: "PrimaLabs' deployment of the Qwen 3.2 32B model, served via vllm/SGLang for efficient token throughput and low-latency inference. Production-ready for enterprise workloads."
 category: "primalabs"
-tags: ["primalabs", "qwen3.2 32B", "sglang"]
+tags: ["primalabs", "qwen3.2 32B", "vllm", "sglang"]
 
 chart:
   repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
-  chartName: "primaserve-qwen-32b-h100-sglang"
+  chartName: "primaserve-qwen-32b-h100"
 
 logoURL: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADpElEQVR4AexXA7AcWxDttzPz9G3btu0floJC7OzMbIxCbNu27UKMUmzbtma2czrc3NydqnkxTtV5q3u6+6rnPMoKTjupn8Qdc0zcMY75tnHEd4yBp1x6i5KAmVLYNf/2bHMuxp6GZq9nG53ZpWcoLI6WoWd921yFIJxIFDSd3YyXudIjT19D1/oWifcomji+6x5+9tHUDyA+qhaAYIc9x+rtx6xOKuOuORZjPE3RCyksuAJl+K7RHwH8hGDeWcdsybUpotVUo8c8x5ymFHDSdyOlKSvgIpTu2VZBzzU6I1BbvOZA8tRATXl6HJoSsn2YQF92zJ84Lxl0KyGHEds0iJ3030nFgwJ+//1388MPP0ylEAirkUOKAoZyLP0vuoQvvvjimffff785uPiDDz5YgdcBCPoRBQBjnsKYRqIBV0I35BMgaWKilLO2+Suu3QRpXOB63zEbysEkiMchCCcS36379NNPXw6Y9QCMiyuaDR9//PEr2gLstHeRdKemd3QhiE+BrPAUkvxFGrz77rtPI9lajUaK+Js0kGuKhGc0jWgRQdQdYl8JtECWmTSoXbt2BL+3xu+eUsAirNqzpAGXpSfQiOZJ+02YPZ4JEZtefvnlDIhLIehovE7CzGu/9957L1IAXn/99XSMLQnNSLxOBhuoW6aCK9HTftSshMTrUMyIszHzf7URpTBzCoWDXvOgEYUtQO6p7IdQ3pMe4TX6RjT4rJP+59WHA49ScCW4Bk+qPhxLeycwUDTtbYzrJgcqjqeb6HXuRmlEP8BBjRDf4EMD1pTHNEl3Uu+nBJXmwU7miyrleyRcpLobmI5JXCn9NZ3mTNT6BmO2qRpMoj2JMQBZ4RlUOgBsq9JzjH5yh/WOyOiu1djG6CSOaBHhx44Y5Cs/TOZSlEkacGV6COZybGJTAX0k7yrnIWkPsM2F10zSNauRWCzPtQoh6Cws7XIYSAffPUkBOIiHiO9Y5aAZ7kWtoeJ0JA4FgMvRc7LvmNwoH6vIjpEbh9K80q9jsEsxq7VcFbodeFAA9r4k2OaWF8DV6YmLh2MNDscOnM7OJ+301ygAYsPwJMwP9gNHgFXffvvtZygrQAMZrbmfC6RLBfiBVho/MBeu7AkKiWSN6DjHrK9IAzEdSLYBZIVxrMyfFBbiy6SpKG111p4oPUwaYKnTkGyMpoCtMDJvUFhIIs+OlEJTmQCnMkXOA+M/YAoAzOdzSNgWW7EJr+f2EuogYIiRnoABb/76ffiusHMAAAAASUVORK5CYII="
 
