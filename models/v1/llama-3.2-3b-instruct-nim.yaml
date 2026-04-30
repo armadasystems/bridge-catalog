@@ -17,8 +17,8 @@ source:
   containerImage: "nvcr.io/nim/meta/llama-3.2-3b-instruct"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 24
-  minRequiredVramInGb: 18
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
   requiredDiscSizeInGb: 15
 dType: []
 config:
