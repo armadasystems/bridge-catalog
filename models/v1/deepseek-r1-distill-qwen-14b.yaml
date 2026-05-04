@@ -17,8 +17,8 @@ source:
   containerImage: ""
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 16
-  minRequiredVramInGb: 40
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 32
   requiredDiscSizeInGb:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
