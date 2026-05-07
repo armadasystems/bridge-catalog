@@ -19,7 +19,7 @@ observ-edge:
     broker: mqtt
     mqttHost: mqtt-prod.visionai.linkervision.ai
     mqttPort: 1883
-    mqttPassword: NCQTXAFBfMESELCRjU8K
+    mqttPassword: ""
     mqttTopic: 48df843d-42b1-496f-b689-a711dd6bf8ec
     mqttUser: 309670a3-9870-481a-b37f-5218060d672e
     deviceId: 48df843d-42b1-496f-b689-a711dd6bf8ec
