@@ -71,7 +71,7 @@ grafana:
   image: primalabs/monitoring:grafana
   port: 3000
   adminUser: admin
-  adminPassword: "Primalabs@123"
+  adminPassword: ""
   allowSignUp: "false"
   storage:
     size: 5Gi
