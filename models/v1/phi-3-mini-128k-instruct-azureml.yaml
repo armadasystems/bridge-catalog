@@ -1,0 +1,28 @@
+modelId: azure/Phi-3-mini-128k-instruct
+name: Microsoft Phi-3-mini-128k-instruct (Azure)
+description: The Phi-3-Mini-128K-Instruct is a 3.8 billion-parameter, lightweight, state-of-the-art open model trained using the Phi-3 datasets. This dataset includes both synthetic data and filtered publicly available website data, with an emphasis on high-quality and reasoning-dense properties. The model belongs to the Phi-3 family with the Mini version in two variants 4K and 128K which is the context length (in tokens) that it can support.
+type: text-generation
+provider: azureml
+tags:
+  - text
+  - chat
+  - conversational
+dType:
+  - auto
+  - bfloat16
+  - float
+  - float16
+  - float32
+  - half
+source:
+  type: azureml
+  azureModelName: Phi-3-mini-128k-instruct
+  version: "1"
+  requiresAuth: true
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 10
+  requiredDiscSizeInGb: 50
+config:
+  maxPositionEmbeddings: 131072
+
