@@ -43,5 +43,5 @@ observ-edge:
     kafkaTopicPatterns: mdx-rtls-*,mdx-its-*
     worksapce: 48df843d-42b1-496f-b689-a711dd6bf8ec
 
-  registry_username: t-48df843d-42b1-496f-b689-a711dd6bf8ec-vm-c-fca3e
-  registry_password: 1CowOGHu2mjmEKj6LaS9upwV4poH2g4VyF0jxn3k2zYP7f8qFrxfJQQJ99CCACqBBLyEqg7NAAABAZCRAfO5
+  registry_username: ""
+  registry_password: ""
