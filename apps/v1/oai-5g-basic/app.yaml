@@ -7,6 +7,7 @@ tags: ["5g", "oai", "core-network", "amf", "smf", "upf", "nrf"]
 chart:
   repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
   chartName: "oai-5g-basic"
+logoURL: "https://gitlab.eurecom.fr/uploads/-/system/project/avatar/223/oai-square.png"
 
 versions:
   - chartVersion: "1.0.0"
