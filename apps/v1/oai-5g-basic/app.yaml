@@ -1,0 +1,15 @@
+name: "oai-5g-basic"
+displayName: "OAI 5G Basic"
+description: "OpenAirInterface 5G Core Network - basic deployment with NRF, AMF, SMF, UPF, UDR, UDM, AUSF, LMF, IMS and traffic server"
+category: "Networking"
+tags: ["5g", "oai", "core-network", "amf", "smf", "upf", "nrf"]
+
+chart:
+  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
+  chartName: "oai-5g-basic"
+
+versions:
+  - chartVersion: "1.0.0"
+    appVersion: "1.0.0"
+    schemaFile: "schema.json"
+    valuesFile: "values.yaml"

@@ -1,0 +1,771 @@
+{
+  "type": "object",
+  "title": "OAI 5G Basic Configuration",
+  "properties": {
+    "global": {
+      "type": "object",
+      "title": "Global Settings",
+      "properties": {
+        "kubernetesDistribution": {
+          "type": "string",
+          "title": "Kubernetes Distribution",
+          "enum": ["Vanilla", "Openshift"],
+          "default": "Vanilla"
+        },
+        "coreNetworkConfigMap": {
+          "type": "string",
+          "title": "Core Network ConfigMap Name",
+          "default": "oai-5g-basic"
+        },
+        "clusterIpServiceIpAllocation": {
+          "type": "boolean",
+          "title": "Allocate IP to ClusterIP Service",
+          "default": true
+        },
+        "waitForNRF": {
+          "type": "boolean",
+          "title": "Wait for NRF Ready",
+          "default": true
+        },
+        "waitForUDR": {
+          "type": "boolean",
+          "title": "Wait for UDR Ready",
+          "default": true
+        },
+        "timeout": {
+          "type": "integer",
+          "title": "Readiness Timeout (minutes)",
+          "default": 1,
+          "minimum": 1
+        },
+        "imagePullSecrets": {
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "title": "Secret Name"
+              }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        }
+      }
+    },
+    "mysql": {
+      "type": "object",
+      "title": "MySQL",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "oai5gdatabase": {
+          "type": "string",
+          "title": "Database Name",
+          "default": "basic"
+        },
+        "persistence": {
+          "type": "object",
+          "title": "Persistence",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Persistence Enabled",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "oai-nrf": {
+      "type": "object",
+      "title": "NRF (Network Repository Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-nrf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "nrf": {
+              "type": "boolean",
+              "title": "Start NRF",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "oai-lmf": {
+      "type": "object",
+      "title": "LMF (Location Management Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-lmf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "lmf": {
+              "type": "boolean",
+              "title": "Start LMF",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "oai-udr": {
+      "type": "object",
+      "title": "UDR (Unified Data Repository)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-udr"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "udr": {
+              "type": "boolean",
+              "title": "Start UDR",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "oai-udm": {
+      "type": "object",
+      "title": "UDM (Unified Data Management)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-udm"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "udm": {
+              "type": "boolean",
+              "title": "Start UDM",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "oai-ausf": {
+      "type": "object",
+      "title": "AUSF (Authentication Server Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-ausf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "ausf": {
+              "type": "boolean",
+              "title": "Start AUSF",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "oai-amf": {
+      "type": "object",
+      "title": "AMF (Access and Mobility Management Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-amf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "amf": {
+              "type": "boolean",
+              "title": "Start AMF",
+              "default": true
+            }
+          }
+        },
+        "multus": {
+          "type": "object",
+          "title": "Multus Network Interfaces",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable Multus",
+              "default": false
+            },
+            "interfaces": {
+              "type": "array",
+              "title": "Interfaces",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "title": "Interface Name" },
+                  "hostInterface": { "type": "string", "title": "Host Interface", "default": "eth0" },
+                  "ipAdd": { "type": "string", "title": "IP Address" },
+                  "netmask": { "type": "string", "title": "Netmask" },
+                  "defaultRoute": { "type": "string", "title": "Default Route" },
+                  "gateway": { "type": "string", "title": "Gateway" },
+                  "routes": { "type": "string", "title": "Routes" },
+                  "enabled": { "type": "boolean", "title": "Enabled", "default": true }
+                }
+              },
+              "default": [
+                {
+                  "name": "n2",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.6.90",
+                  "netmask": "22",
+                  "routes": "",
+                  "defaultRoute": "172.21.7.254",
+                  "enabled": true
+                },
+                {
+                  "name": "sbi",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.8.91",
+                  "netmask": "22",
+                  "gateway": "172.21.11.254",
+                  "enabled": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "oai-upf": {
+      "type": "object",
+      "title": "UPF (User Plane Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-upf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "upf": {
+              "type": "boolean",
+              "title": "Start UPF",
+              "default": true
+            }
+          }
+        },
+        "multus": {
+          "type": "object",
+          "title": "Multus Network Interfaces",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable Multus",
+              "default": false
+            },
+            "interfaces": {
+              "type": "array",
+              "title": "Interfaces",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "title": "Interface Name" },
+                  "hostInterface": { "type": "string", "title": "Host Interface", "default": "eth0" },
+                  "ipAdd": { "type": "string", "title": "IP Address" },
+                  "netmask": { "type": "string", "title": "Netmask" },
+                  "defaultRoute": { "type": "string", "title": "Default Route" },
+                  "gateway": { "type": "string", "title": "Gateway" },
+                  "enabled": { "type": "boolean", "title": "Enabled", "default": true }
+                }
+              },
+              "default": [
+                {
+                  "name": "n3",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.12.95",
+                  "netmask": "22",
+                  "defaultRoute": "172.21.7.254",
+                  "enabled": true
+                },
+                {
+                  "name": "n4",
+                  "hostInterface": "eth0",
+                  "ipAdd": "192.168.24.2",
+                  "netmask": "24",
+                  "enabled": true
+                },
+                {
+                  "name": "n6",
+                  "hostInterface": "eth0",
+                  "ipAdd": "192.168.22.2",
+                  "netmask": "24",
+                  "enabled": true
+                },
+                {
+                  "name": "n9",
+                  "hostInterface": "eth0",
+                  "ipAdd": "192.168.23.2",
+                  "netmask": "24",
+                  "enabled": false
+                },
+                {
+                  "name": "sbi",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.8.91",
+                  "netmask": "22",
+                  "gateway": "172.21.11.254",
+                  "enabled": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "oai-traffic-server": {
+      "type": "object",
+      "title": "Traffic Server",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/trf-gen-cn5g"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "latest"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "title": "Traffic Server Config",
+          "properties": {
+            "ueroute": {
+              "type": "string",
+              "title": "UE Route (CIDR)",
+              "default": "12.1.1.0/24"
+            },
+            "upfHost": {
+              "type": "string",
+              "title": "UPF Hostname",
+              "default": "oai-upf"
+            },
+            "noOfIperf3Server": {
+              "type": "integer",
+              "title": "Number of iPerf3 Servers",
+              "default": 2,
+              "minimum": 1
+            }
+          }
+        },
+        "multus": {
+          "type": "object",
+          "title": "Multus Network Interfaces",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable Multus",
+              "default": false
+            },
+            "interfaces": {
+              "type": "array",
+              "title": "Interfaces",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "title": "Interface Name" },
+                  "hostInterface": { "type": "string", "title": "Host Interface", "default": "eth0" },
+                  "ipAdd": { "type": "string", "title": "IP Address" },
+                  "netmask": { "type": "string", "title": "Netmask" },
+                  "defaultRoute": { "type": "string", "title": "Default Route" },
+                  "enabled": { "type": "boolean", "title": "Enabled", "default": true }
+                }
+              },
+              "default": [
+                {
+                  "name": "external",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.6.99",
+                  "netmask": "22",
+                  "defaultRoute": "172.21.7.254",
+                  "enabled": true
+                }
+              ]
+            }
+          }
+        },
+        "nodeName": {
+          "type": "string",
+          "title": "Node Name",
+          "default": ""
+        }
+      }
+    },
+    "oai-smf": {
+      "type": "object",
+      "title": "SMF (Session Management Function)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "nfimage": {
+          "type": "object",
+          "title": "Image",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Repository",
+              "default": "docker.io/oaisoftwarealliance/oai-smf"
+            },
+            "version": {
+              "type": "string",
+              "title": "Version",
+              "default": "v2.2.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Pull Policy",
+              "enum": ["IfNotPresent", "Always", "Never"],
+              "default": "IfNotPresent"
+            }
+          }
+        },
+        "config": {
+          "type": "object",
+          "title": "SMF Config",
+          "properties": {
+            "imsHost": {
+              "type": "string",
+              "title": "IMS Hostname",
+              "default": "ims"
+            }
+          }
+        },
+        "start": {
+          "type": "object",
+          "title": "Start Flags",
+          "properties": {
+            "smf": {
+              "type": "boolean",
+              "title": "Start SMF",
+              "default": true
+            }
+          }
+        },
+        "multus": {
+          "type": "object",
+          "title": "Multus Network Interfaces",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable Multus",
+              "default": false
+            },
+            "interfaces": {
+              "type": "array",
+              "title": "Interfaces",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "title": "Interface Name" },
+                  "hostInterface": { "type": "string", "title": "Host Interface", "default": "eth0" },
+                  "ipAdd": { "type": "string", "title": "IP Address" },
+                  "netmask": { "type": "string", "title": "Netmask" },
+                  "defaultRoute": { "type": "string", "title": "Default Route" },
+                  "gateway": { "type": "string", "title": "Gateway" },
+                  "enabled": { "type": "boolean", "title": "Enabled", "default": true }
+                }
+              },
+              "default": [
+                {
+                  "name": "n4",
+                  "hostInterface": "eth0",
+                  "ipAdd": "192.168.24.3",
+                  "netmask": "24",
+                  "defaultRoute": "",
+                  "enabled": true
+                },
+                {
+                  "name": "sbi",
+                  "hostInterface": "eth0",
+                  "ipAdd": "172.21.8.92",
+                  "netmask": "22",
+                  "gateway": "172.21.11.254",
+                  "enabled": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ims": {
+      "type": "object",
+      "title": "IMS (IP Multimedia Subsystem)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": true
+        },
+        "imsUsers": {
+          "type": "array",
+          "title": "IMS Users",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "title": "User ID (IMSI)"
+              },
+              "fullname": {
+                "type": "string",
+                "title": "Full Name"
+              },
+              "hassip": {
+                "type": "string",
+                "title": "Has SIP",
+                "enum": ["yes", "no"],
+                "default": "yes"
+              },
+              "context": {
+                "type": "string",
+                "title": "Context",
+                "default": "users"
+              },
+              "host": {
+                "type": "string",
+                "title": "Host",
+                "default": "dynamic"
+              },
+              "transport": {
+                "type": "string",
+                "title": "Transport",
+                "default": "tcp,udp"
+              }
+            },
+            "required": ["id", "fullname"]
+          },
+          "default": [
+            {
+              "id": "001010000000100",
+              "fullname": "tom",
+              "hassip": "yes",
+              "context": "users",
+              "host": "dynamic",
+              "transport": "tcp,udp"
+            },
+            {
+              "id": "001010000000101",
+              "fullname": "harry",
+              "hassip": "yes",
+              "context": "users",
+              "host": "dynamic",
+              "transport": "tcp,udp"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

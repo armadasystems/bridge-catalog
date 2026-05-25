@@ -1,0 +1,254 @@
+# SPDX-License-Identifier: MIT
+
+global:
+  kubernetesDistribution: Vanilla #Openshift/Vanilla Kubernetes for Upstream Kubernetes
+  coreNetworkConfigMap: oai-5g-basic
+  clusterIpServiceIpAllocation: true #this will allocate ip-address to cluster Ip service
+  waitForNRF: true
+  waitForUDR: true
+  http2Param: "--http2-prior-knowledge"  # if waitForNRF is true and http2 is used for all NF then this param is needed
+  timeout: 1
+  imagePullSecrets:
+  - &secret
+    name: "regcred"
+mysql:
+  enabled: true
+  imagePullPolicy: IfNotPresent
+  oai5gdatabase: basic
+  imagePullSecrets:
+    - *secret
+  persistence:
+    enabled: false
+oai-nrf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-nrf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+    storageClass: "-"
+    size: 1Gi
+  start:
+    nrf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-lmf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-lmf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    lmf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-udr:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-udr
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    udr: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-udm:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-udm
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    udm: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-ausf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-ausf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    ausf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-amf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-amf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    amf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    enabled: false
+    interfaces:
+      - name: "n2"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.90"
+        netmask: "22"
+        routes: ""
+        defaultRoute: "172.21.7.254"
+        enabled: true
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+oai-upf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-upf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  start:
+    upf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    enabled: false
+    interfaces:
+      - name: "n3"
+        hostInterface: "eth0"
+        ipAdd: "172.21.12.95"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+        enabled: true
+      - name: "n4"
+        hostInterface: "eth0"
+        ipAdd: "192.168.24.2"
+        netmask: "24"
+        enabled: true
+      - name: "n6"
+        hostInterface: "eth0"
+        ipAdd: "192.168.22.2"
+        netmask: "24"
+        enabled: true
+      - name: "n9"
+        hostInterface: "eth0"
+        ipAdd: "192.168.23.2"
+        netmask: "24"
+        enabled: false
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+oai-traffic-server:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/trf-gen-cn5g
+    version: latest
+    pullPolicy: IfNotPresent
+  imagePullSecrets:
+    - *secret
+  multus:
+    enabled: false
+    interfaces:
+      - name: "external"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.99"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+        enabled: true
+  config:
+    ueroute: 12.1.1.0/24
+    upfHost: oai-upf
+    noOfIperf3Server: 2
+  resources:
+    define: false
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  nodeName: ""
+oai-smf:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/oai-smf
+    version: v2.2.0
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false
+  persistent:
+    sharedvolume: false
+  config:
+    imsHost: ims
+  start:
+    smf: true
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    enabled: false
+    interfaces:
+      - name: "n4"
+        hostInterface: "eth0"
+        ipAdd: "192.168.24.3"
+        netmask: "24"
+        defaultRoute: ""
+        enabled: true
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.92"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+ims:
+  enabled: true
+  imagePullSecrets:
+    - *secret
+  imsUsers:
+    - id: "001010000000100"
+      fullname: tom
+      hassip: yes
+      context: users
+      host: dynamic
+      transport: tcp,udp
+    - id: "001010000000101"
+      fullname: harry
+      hassip: yes
+      context: users
+      host: dynamic
+      transport: tcp,udp
