@@ -10,7 +10,7 @@ chart:
 logoURL: "https://gitlab.eurecom.fr/uploads/-/system/project/avatar/223/oai-square.png"
 
 versions:
-  - chartVersion: "1.0.0"
+  - chartVersion: "v2.2"
     appVersion: "1.0.0"
     schemaFile: "schema.json"
     valuesFile: "values.yaml"

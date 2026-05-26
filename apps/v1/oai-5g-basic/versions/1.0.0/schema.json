@@ -1,34 +1,47 @@
 {
   "type": "object",
   "title": "OAI 5G Basic Configuration",
+  "required": [
+      "kubernetesDistribution",
+      "global",
+      "mysql",
+      "oai-nrf",
+      "oai-udr",
+      "oai-udm",
+      "oai-ausf",
+      "oai-amf",
+      "oai-smf",
+      "oai-upf"
+    ],
   "properties": {
     "kubernetesDistribution": {
+      "x-order": 0,
       "type": "string",
       "title": "Kubernetes Distribution",
       "enum": ["Vanilla", "Openshift"],
       "default": "Openshift"
     },
     "global": {
+      "x-order": 1,
       "type": "object",
       "title": "Global",
       "properties": {
         "kubernetesDistribution": {
+          "x-order": 0,
           "type": "string",
           "title": "Kubernetes Distribution",
           "enum": ["Vanilla", "Openshift"],
           "default": "Openshift"
         },
         "imagePullSecrets": {
+          "x-order": 1,
           "type": "array",
           "title": "Image Pull Secrets",
-          "description": "Applied to all network functions",
+          "maxItems": 1,
           "items": {
             "type": "object",
             "properties": {
-              "name": {
-                "type": "string",
-                "title": "Secret Name"
-              }
+              "name": { "type": "string", "title": "Secret Name" }
             },
             "required": ["name"]
           },
@@ -37,31 +50,110 @@
       }
     },
     "mysql": {
+      "x-order": 2,
       "type": "object",
       "title": "MySQL",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "primary": {
+          "x-order": 1,
           "type": "object",
           "title": "Primary",
           "properties": {
-            "allowPrivilegeEscalation": {
-              "type": "boolean",
-              "title": "Allow Privilege Escalation",
-              "default": true
+            "podSecurityContext": {
+              "x-order": 0,
+              "type": "object",
+              "title": "Pod Security Context",
+              "properties": {
+                "runAsUser": {
+                  "x-order": 0,
+                  "type": "integer",
+                  "title": "Run As User",
+                  "default": 0
+                },
+                "fsGroup": {
+                  "x-order": 1,
+                  "type": "integer",
+                  "title": "FS Group",
+                  "default": 0
+                }
+              }
+            },
+            "containerSecurityContext": {
+              "x-order": 1,
+              "type": "object",
+              "title": "Container Security Context",
+              "properties": {
+                "runAsUser": {
+                  "x-order": 0,
+                  "type": "integer",
+                  "title": "Run As User",
+                  "default": 0
+                },
+                "allowPrivilegeEscalation": {
+                  "x-order": 1,
+                  "type": "boolean",
+                  "title": "Allow Privilege Escalation",
+                  "default": true
+                }
+              }
             }
           }
         }
       }
     },
     "oai-nrf": {
+      "x-order": 3,
       "type": "object",
       "title": "NRF (Network Repository Function)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
+        "podSecurityContext": {
+          "x-order": 1,
+          "type": "object",
+          "title": "Pod Security Context",
+          "properties": {
+            "runAsUser": {
+              "x-order": 0,
+              "type": "integer",
+              "title": "Run As User",
+              "default": 0
+            }
+          }
+        },
         "securityContext": {
+          "x-order": 2,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
@@ -71,14 +163,31 @@
       }
     },
     "oai-udr": {
+      "x-order": 4,
       "type": "object",
       "title": "UDR (Unified Data Repository)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
@@ -88,14 +197,31 @@
       }
     },
     "oai-udm": {
+      "x-order": 5,
       "type": "object",
       "title": "UDM (Unified Data Management)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
@@ -105,14 +231,31 @@
       }
     },
     "oai-ausf": {
+      "x-order": 6,
       "type": "object",
       "title": "AUSF (Authentication Server Function)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
@@ -122,23 +265,42 @@
       }
     },
     "oai-amf": {
+      "x-order": 7,
       "type": "object",
       "title": "AMF (Access and Mobility Management Function)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
             },
             "capabilities": {
+              "x-order": 1,
               "type": "object",
               "title": "Capabilities",
               "properties": {
                 "add": {
+                  "x-order": 0,
                   "type": "array",
                   "title": "Add Capabilities",
                   "items": { "type": "string" },
@@ -149,10 +311,12 @@
           }
         },
         "multus": {
+          "x-order": 2,
           "type": "object",
           "title": "Multus",
           "properties": {
             "enabled": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Enabled",
               "default": false
@@ -162,23 +326,42 @@
       }
     },
     "oai-smf": {
+      "x-order": 8,
       "type": "object",
       "title": "SMF (Session Management Function)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
             },
             "capabilities": {
+              "x-order": 1,
               "type": "object",
               "title": "Capabilities",
               "properties": {
                 "add": {
+                  "x-order": 0,
                   "type": "array",
                   "title": "Add Capabilities",
                   "items": { "type": "string" },
@@ -189,10 +372,12 @@
           }
         },
         "multus": {
+          "x-order": 2,
           "type": "object",
           "title": "Multus",
           "properties": {
             "enabled": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Enabled",
               "default": false
@@ -202,23 +387,42 @@
       }
     },
     "oai-upf": {
+      "x-order": 9,
       "type": "object",
       "title": "UPF (User Plane Function)",
       "properties": {
+        "imagePullSecrets": {
+          "x-order": 0,
+          "type": "array",
+          "title": "Image Pull Secrets",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "title": "Secret Name" }
+            },
+            "required": ["name"]
+          },
+          "default": [{ "name": "regcred" }]
+        },
         "securityContext": {
+          "x-order": 1,
           "type": "object",
           "title": "Security Context",
           "properties": {
             "privileged": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Privileged",
               "default": true
             },
             "capabilities": {
+              "x-order": 1,
               "type": "object",
               "title": "Capabilities",
               "properties": {
                 "add": {
+                  "x-order": 0,
                   "type": "array",
                   "title": "Add Capabilities",
                   "items": { "type": "string" },
@@ -229,10 +433,12 @@
           }
         },
         "multus": {
+          "x-order": 2,
           "type": "object",
           "title": "Multus",
           "properties": {
             "enabled": {
+              "x-order": 0,
               "type": "boolean",
               "title": "Enabled",
               "default": false
