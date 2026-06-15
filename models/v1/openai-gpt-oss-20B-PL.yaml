@@ -20,7 +20,7 @@ resourceRequirements:
   minRequiredRamInGb: 16
   minRequiredVramInGb: 120
   requiredDiscSizeInGb:
-dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+dType: []
 config:
   supportedGpuTypes: ["NVIDIA-L4", "H100-SXM-80GB"]
-  maxPositionEmbeddings: 131072
+  maxPositionEmbeddings:
