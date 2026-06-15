@@ -1,0 +1,27 @@
+modelId: microsoft/phi-4
+name: Phi-4
+description: Microsoft's 14B parameter open model optimized for complex reasoning, math, and code.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "reasoning", "math"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/1583646260758-5e64858c87403103f9f1055d.png"
+repoUrl: "https://huggingface.co/microsoft/phi-4"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/microsoft/phi-4"
+  requiresAuth: false
+  license: "mit"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 32
+  requiredDiscSizeInGb: 30
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 16384
+metadata:
+  securityScan: true

@@ -1,0 +1,27 @@
+modelId: nvidia/NVIDIA-Nemotron-Nano-9B-v2
+name: NVIDIA Nemotron Nano 9B v2
+description: NVIDIA's 9B hybrid Mamba-Transformer model tuned for reasoning with a configurable thinking budget.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2"
+  requiresAuth: false
+  license: "nvidia-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 20
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 131072
+metadata:
+  securityScan: true

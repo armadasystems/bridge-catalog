@@ -1,0 +1,27 @@
+modelId: openai/gpt-oss-20b
+name: GPT-OSS 20B
+description: OpenAI's 20B open-weight reasoning model (MXFP4-quantized), designed to run on a single 16GB GPU.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "reasoning", "open-weight"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/openai/gpt-oss-20b"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/openai/gpt-oss-20b"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 16
+  requiredDiscSizeInGb: 16
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 131072
+metadata:
+  securityScan: true
