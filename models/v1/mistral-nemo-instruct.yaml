@@ -1,0 +1,27 @@
+modelId: mistralai/Mistral-Nemo-Instruct-2407
+name: Mistral Nemo Instruct
+description: A 12B instruction model built by Mistral with NVIDIA, featuring a 128k context window.
+type: text-generation
+version: 1.0.0
+tags: ["chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407"
+  requiresAuth: true
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 28
+  requiredDiscSizeInGb: 25
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 131072
+metadata:
+  securityScan: true
