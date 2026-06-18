@@ -2,37 +2,37 @@
 observ-edge:
   observVlmServiceUrl: https://visionai.linkervision.ai/observ/observ-vlm-service
   offline: false
-  dns: no-webrtc
+  dns: 'no'
 
   edgeAgent:
     address: https://no/
-    name: vm-c-fca3e
+    name: vm-d
     workspace: 48df843d-42b1-496f-b689-a711dd6bf8ec
     prometheus: http://prometheus-kube-prometheus-prometheus.monitor:9090
     agentOrganization: Vision AI
-    turnServerUrl: ""
-    turnUsername: ""
-    turnPassword: ""
+    turnServerUrl: ''
+    turnUsername: ''
+    turnPassword: ''
 
   image:
     cr: observcr.azurecr.io
-    tag: "3.8.3"
+    tag: 3.9.4
 
-  mediaProviderUrl: https://visionai.linkervision.ai/observ/media-provider
+  mediaProviderUrl: https://visionai.linkervision.com/observ/media-provider
   ingressClassName: public
 
   streamAgent:
     broker: mqtt
-    mqttHost: mqtt-prod.visionai.linkervision.ai
+    mqttHost: mqtt-prod.visionai.linkervision.com
     mqttPort: 1883
     mqttPassword: ""
     mqttTopic: 48df843d-42b1-496f-b689-a711dd6bf8ec
-    mqttUser: 6d16e5a5-4a32-4c97-85d9-fbd35cf3d429
+    mqttUser: ed78007a-bd47-485c-82db-66f69b4afd33
     deviceId: 48df843d-42b1-496f-b689-a711dd6bf8ec
     use_minio: false
 
-  webServerUrl: https://visionai.linkervision.ai/observ/
-  webUiUrl: https://visionai.linkervision.ai/observ/
+  webServerUrl: https://visionai.linkervision.com/observ/
+  webUiUrl: https://visionai.linkervision.com/observ/
 
   registry_url: observcr.azurecr.io
 
