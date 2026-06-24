@@ -20,6 +20,6 @@ versions:
     valuesFile: "values.yaml"
     schemaFile: "schema.json"
   - chartVersion: "0.1.9-beta"
-    appVersion: "0.1.9"
+    appVersion: "0.1.9-beta"
     valuesFile: "values.yaml"
     schemaFile: "schema.json"
