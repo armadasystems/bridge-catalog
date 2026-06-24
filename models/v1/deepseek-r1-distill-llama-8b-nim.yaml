@@ -17,9 +17,9 @@ source:
   containerImage: "nvcr.io/nim/deepseek-ai/deepseek-r1-distill-llama-8b"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 32
-  minRequiredVramInGb: 24
-  requiredDiscSizeInGb: 20
+  minRequiredRamInGb: 15
+  minRequiredVramInGb: 23
+  requiredDiscSizeInGb: 18
 dType: []
 config:
-  maxPositionEmbeddings: 0
+  maxPositionEmbeddings: 131072

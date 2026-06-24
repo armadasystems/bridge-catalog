@@ -10,16 +10,16 @@ provider: nim
 source:
   type: nim
   revision: ""
-  version: "1.8.3"
+  version: "1.8.4"
   repository: ""
   requiresAuth: true
   license: ""
   containerImage: "nvcr.io/nim/nvidia/llama-3.1-nemotron-nano-8b-v1"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 32
-  minRequiredVramInGb: 24
-  requiredDiscSizeInGb: 20
+  minRequiredRamInGb: 21
+  minRequiredVramInGb: 23
+  requiredDiscSizeInGb: 18
 dType: []
 config:
-  maxPositionEmbeddings: 0
+  maxPositionEmbeddings: 131072
