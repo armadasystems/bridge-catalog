@@ -19,7 +19,7 @@ source:
 resourceRequirements:
   minRequiredRamInGb: 12
   minRequiredVramInGb: 9
-  requiredDiscSizeInGb: 12 
+  requiredDiscSizeInGb: 18 
 dType: []
 config:
   maxPositionEmbeddings: 131072
