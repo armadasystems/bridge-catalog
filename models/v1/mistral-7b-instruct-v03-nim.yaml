@@ -17,7 +17,7 @@ source:
   containerImage: "nvcr.io/nim/mistralai/mistral-7b-instruct-v0.3"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 8
+  minRequiredRamInGb: 34
   minRequiredVramInGb: 24  
   requiredDiscSizeInGb: 30
 dType: []

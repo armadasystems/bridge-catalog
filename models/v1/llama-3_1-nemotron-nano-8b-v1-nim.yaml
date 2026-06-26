@@ -17,7 +17,7 @@ source:
   containerImage: "nvcr.io/nim/nvidia/llama-3.1-nemotron-nano-8b-v1"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 21
+  minRequiredRamInGb: 30
   minRequiredVramInGb: 23
   requiredDiscSizeInGb: 18
 dType: []
