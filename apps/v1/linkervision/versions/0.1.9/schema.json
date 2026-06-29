@@ -9,7 +9,7 @@
           "observVlmServiceUrl": {
             "type": "string",
             "title": "Observ VLM Service URL",
-            "default": "https://visionai.linkervision.ai/observ/observ-vlm-service"
+            "default": "https://visionai.linkervision.com/observ/observ-vlm-service"
           },
           "offline": {
             "type": "boolean",
@@ -78,14 +78,14 @@
               "tag": {
                 "type": "string",
                 "title": "Image Tag",
-                "default": "3.8.3"
+                "default": "3.9.4"
               }
             }
           },
           "mediaProviderUrl": {
             "type": "string",
             "title": "Media Provider URL",
-            "default": "https://visionai.linkervision.ai/observ/media-provider"
+            "default": "https://visionai.linkervision.com/observ/media-provider"
           },
           "ingressClassName": {
             "type": "string",
@@ -104,7 +104,7 @@
               "mqttHost": {
                 "type": "string",
                 "title": "MQTT Host",
-                "default": "mqtt-prod.visionai.linkervision.ai"
+                "default": "mqtt-prod.visionai.linkervision.com"
               },
               "mqttPort": {
                 "type": "integer",
@@ -137,12 +137,12 @@
           "webServerUrl": {
             "type": "string",
             "title": "Web Server URL",
-            "default": "https://visionai.linkervision.ai/observ/"
+            "default": "https://visionai.linkervision.com/observ/"
           },
           "webUiUrl": {
             "type": "string",
             "title": "Web UI URL",
-            "default": "https://visionai.linkervision.ai/observ/"
+            "default": "https://visionai.linkervision.com/observ/"
           },
           "registry_url": {
             "type": "string",
