@@ -18,7 +18,7 @@ source:
   type: azureml
   azureModelName: Phi-3-mini-128k-instruct
   version: "1"
-  requiresAuth: true
+  requiresAuth: false
 resourceRequirements:
   minRequiredRamInGb: 6
   minRequiredVramInGb: 10
