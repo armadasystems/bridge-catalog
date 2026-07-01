@@ -1,0 +1,25 @@
+modelId: MultiverseComputingCAI/Hypernova-60B-2605
+name: MultiverseComputingCAI HyperNova 60B
+description: HyperNova 60B is a large language model developed by Multiverse Computing with a focus on compute efficiency and deployability.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/68783facef79a05727260de3/UPX5RQxiPGA-ZbBmArIKq.png"
+repoUrl: "https://huggingface.co/MultiverseComputingCAI/Hypernova-60B-2605"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/MultiverseComputingCAI/Hypernova-60B-2605"
+  requiresAuth: false
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 64
+  requiredDiscSizeInGb:
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 131072

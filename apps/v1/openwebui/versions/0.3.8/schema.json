@@ -2,7 +2,8 @@
     "type": "object",
     "order": [
       "ollama",
-      "pipelines"
+      "pipelines",
+      "storage-class"
     ],
     "properties": {
       "ollama": {
@@ -30,6 +31,10 @@
             "description": "  Automatically install Pipelines chart to extend Open WebUI functionality using Pipelines: https://github.com/open-webui/pipelines"
           }
         }
+      },
+      "storage-class": {
+        "type": "string",
+        "default": "local-path"
       }
     }
-  }
+}

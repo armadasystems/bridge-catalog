@@ -1,4 +1,4 @@
-modelId: meta/llama-3_1-8b-instruct
+modelId: meta/llama-3.1-8b-instruct
 name: Meta Llama 8B Instruct
 description: An 8B parameter Llama model instruction-tuned for reliable conversational AI.
 type: text-generation
@@ -12,7 +12,7 @@ source:
   revision: ""
   version: "1.8"
   repository: ""
-  requiresAuth: true
+  requiresAuth: false
   license: ""
   containerImage: "nvcr.io/nim/meta/llama-3.1-8b-instruct"
   apiEndpoint: ""

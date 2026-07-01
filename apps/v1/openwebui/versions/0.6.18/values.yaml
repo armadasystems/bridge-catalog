@@ -331,10 +331,6 @@ extraEnvVars:
       secretKeyRef:
         name: pipelines-api-key
         key: api-key
-  # valueFrom:
-  #   secretKeyRef:
-  #     name: pipelines-api-key
-  #     key: api-key
   # - name: OPENAI_API_KEY
   #   valueFrom:
   #     secretKeyRef:
