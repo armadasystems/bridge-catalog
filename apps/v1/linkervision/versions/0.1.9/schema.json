@@ -98,6 +98,7 @@
             "properties": {
               "gpuDecode": {
                 "type": "boolean",
+                "title": "GPU Decode",
                 "description": "Support GPU Decode Tasks",
                 "default": false
               },
