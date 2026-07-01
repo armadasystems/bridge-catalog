@@ -96,6 +96,11 @@
             "type": "object",
             "title": "Stream Agent",
             "properties": {
+              "gpuDecode": {
+                "type": "boolean",
+                "title": "Support GPU Decode mode (This will require a multi GPU node in cluster)",
+                "default": false
+              },
               "broker": {
                 "type": "string",
                 "title": "Broker",
