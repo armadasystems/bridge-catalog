@@ -12,7 +12,7 @@ source:
   revision: ""
   version: "1.5.2"
   repository: ""
-  requiresAuth: true
+  requiresAuth: false
   license: ""
   containerImage: "nvcr.io/nim/deepseek-ai/deepseek-r1-distill-llama-8b"
   apiEndpoint: ""

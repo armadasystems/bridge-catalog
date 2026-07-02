@@ -12,7 +12,7 @@ source:
   revision: "main"
   version: ""
   repository: "https://huggingface.co/mistralai/Mistral-Nemo-Instruct-2407"
-  requiresAuth: true
+  requiresAuth: false
   license: "apache-2.0"
   containerImage: ""
   apiEndpoint: ""
