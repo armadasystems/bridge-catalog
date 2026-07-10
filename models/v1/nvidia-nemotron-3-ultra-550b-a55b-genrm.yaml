@@ -1,0 +1,27 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-GenRM
+name: NVIDIA Nemotron 3 Ultra 550B A55B GenRM
+description: Generative reward model built on the 561B Nemotron 3 Ultra MoE, used for scoring and ranking responses rather than conversational chat, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "reward-model"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-GenRM"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-GenRM"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 1200
+  requiredDiscSizeInGb: 1122
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144
+metadata:
+  securityScan: true

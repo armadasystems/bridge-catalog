@@ -1,0 +1,27 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16
+name: NVIDIA Nemotron 3 Ultra 550B A55B (BF16)
+description: NVIDIA's flagship 561B hybrid Mamba-Transformer MoE model (55B active params) for enterprise reasoning and chat, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 1200
+  requiredDiscSizeInGb: 1122
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144
+metadata:
+  securityScan: true
