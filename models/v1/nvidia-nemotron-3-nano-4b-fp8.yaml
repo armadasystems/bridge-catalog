@@ -23,5 +23,3 @@ resourceRequirements:
 dType: ["auto"]
 config:
   maxPositionEmbeddings: 262144
-metadata:
-  securityScan: true

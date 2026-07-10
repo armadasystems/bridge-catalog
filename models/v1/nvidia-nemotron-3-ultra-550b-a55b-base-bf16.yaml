@@ -23,5 +23,3 @@ resourceRequirements:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 262144
-metadata:
-  securityScan: true
