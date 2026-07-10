@@ -1,0 +1,25 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16
+name: NVIDIA Nemotron 3 Nano 4B (BF16)
+description: NVIDIA's 4B dense hybrid Mamba-Transformer model tuned for reasoning and conversational use, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 8
+  minRequiredVramInGb: 16
+  requiredDiscSizeInGb: 16
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144

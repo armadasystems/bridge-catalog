@@ -1,0 +1,25 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF
+name: NVIDIA Nemotron 3 Nano 4B (GGUF)
+description: GGUF (Q4_K_M, llama.cpp) quantized build of the 4B dense Nemotron 3 Nano model, intended for llama.cpp-style runtimes rather than the default vLLM serving path, with a 1M context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning", "gguf"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 8
+  minRequiredVramInGb: 8
+  requiredDiscSizeInGb: 4
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 1048576

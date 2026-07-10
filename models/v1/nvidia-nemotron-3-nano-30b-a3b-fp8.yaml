@@ -1,0 +1,25 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-FP8
+name: NVIDIA Nemotron 3 Nano 30B A3B (FP8)
+description: FP8 quantized build of the 32B Nemotron 3 Nano MoE model for reduced-VRAM serving, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-FP8"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-FP8"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 48
+  requiredDiscSizeInGb: 32
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 262144

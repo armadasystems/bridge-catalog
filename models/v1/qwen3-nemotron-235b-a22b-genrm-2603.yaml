@@ -1,0 +1,25 @@
+modelId: nvidia/Qwen3-Nemotron-235B-A22B-GenRM-2603
+name: Qwen3-Nemotron 235B A22B GenRM (2603)
+description: NVIDIA generative reward model built on the Qwen3 235B MoE (22B active params), used for scoring and ranking responses rather than conversational chat, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "reward-model"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/Qwen3-Nemotron-235B-A22B-GenRM-2603"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/Qwen3-Nemotron-235B-A22B-GenRM-2603"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 480
+  requiredDiscSizeInGb: 470
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144

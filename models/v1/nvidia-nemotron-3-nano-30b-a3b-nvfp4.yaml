@@ -1,0 +1,25 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4
+name: NVIDIA Nemotron 3 Nano 30B A3B (NVFP4)
+description: NVFP4 4-bit quantized build of the 32B Nemotron 3 Nano MoE model for reduced-VRAM serving, with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 18
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 262144

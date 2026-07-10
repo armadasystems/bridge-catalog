@@ -1,0 +1,25 @@
+modelId: nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16
+name: NVIDIA Nemotron 3 Super 120B A12B Base (BF16)
+description: Pretrained base (non-instruction-tuned) 124B Nemotron 3 Super MoE model, intended for fine-tuning rather than direct chat use, with a 1M context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "base", "pretrained"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16"
+provider: huggingface
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-Base-BF16"
+  requiresAuth: false
+  license: "nvidia-nemotron-open-model-license"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 256
+  requiredDiscSizeInGb: 248
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 1048576
