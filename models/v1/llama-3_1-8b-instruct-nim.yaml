@@ -10,16 +10,16 @@ provider: nim
 source:
   type: nim
   revision: ""
-  version: "1.8"
+  version: "2.0.6"
   repository: ""
   requiresAuth: false
   license: ""
   containerImage: "nvcr.io/nim/meta/llama-3.1-8b-instruct"
   apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 32
-  minRequiredVramInGb: 24
-  requiredDiscSizeInGb: 20
+  minRequiredRamInGb: 12
+  minRequiredVramInGb: 22
+  requiredDiscSizeInGb: 26
 dType: []
 config:
-  maxPositionEmbeddings: 0
+  maxPositionEmbeddings: 131072
