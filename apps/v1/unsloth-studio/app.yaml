@@ -1,0 +1,17 @@
+name: "unsloth-studio"
+displayName: "Unsloth Studio"
+description: "Unsloth Studio (Beta) - a local web UI for fine-tuning, training, and running inference on LLMs. Includes a Studio training UI, a chat interface, data recipes, and a Jupyter notebook environment. REQUIRES a GPU node pool (with the NVIDIA device plugin) for the Studio training and Export tabs; Chat and Data Recipes work CPU-only."
+category: "AI"
+tags: ["LLM", "Fine-tuning", "Training", "Jupyter"]
+
+chart:
+  repoURL: "https://achyuth-ammanath.github.io/bridge-charts"
+  chartName: "unsloth-studio"
+
+logoURL: "https://raw.githubusercontent.com/achyuth-ammanath/bridge-charts/main/unsloth_logo.jpg"
+
+versions:
+  - chartVersion: "0.1.0"
+    appVersion: "v0.1"
+    valuesFile: "values.yaml"
+    schemaFile: "schema.json"

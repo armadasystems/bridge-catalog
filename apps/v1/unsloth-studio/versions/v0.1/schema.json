@@ -1,0 +1,117 @@
+{
+  "type": "object",
+  "order": [
+    "env",
+    "gpu",
+    "persistence",
+    "hfCache",
+    "ingress"
+  ],
+  "properties": {
+    "env": {
+      "type": "object",
+      "title": "Credentials",
+      "required": ["jupyterPassword"],
+      "order": [
+        "jupyterPassword",
+        "userPassword"
+      ],
+      "properties": {
+        "jupyterPassword": {
+          "type": "string",
+          "title": "Jupyter password",
+          "format": "password",
+          "minLength": 1,
+          "description": "Required. Password for the Jupyter/Studio login. No shared default — set a unique one."
+        },
+        "userPassword": {
+          "type": "string",
+          "title": "User password",
+          "format": "password",
+          "description": "Password for the container user (USER_PASSWORD). Leave blank if unused."
+        }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "title": "GPU",
+      "order": [
+        "enabled",
+        "count"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable GPU",
+          "default": true,
+          "description": "Requires a GPU node pool with the NVIDIA device plugin. If enabled and no GPU node is available, the pod stays Pending. Off = CPU-only (Chat + Data Recipes; Studio training + Export are disabled)."
+        },
+        "count": {
+          "type": "integer",
+          "title": "GPU count",
+          "default": 1,
+          "minimum": 1,
+          "description": "Number of GPUs to request (only used when GPU is enabled)."
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "title": "Workspace storage",
+      "order": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "string",
+          "title": "Workspace volume size",
+          "default": "50Gi",
+          "description": "Persistent volume for /workspace/work."
+        }
+      }
+    },
+    "hfCache": {
+      "type": "object",
+      "title": "Hugging Face cache",
+      "order": [
+        "enabled",
+        "size"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable HF cache volume",
+          "default": true,
+          "description": "Separate persistent volume for the Hugging Face model cache."
+        },
+        "size": {
+          "type": "string",
+          "title": "HF cache volume size",
+          "default": "30Gi"
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "title": "Ingress (external access)",
+      "order": [
+        "enabled",
+        "host"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Expose via Ingress",
+          "default": false,
+          "description": "Off by default. Turn on to expose externally — you must set a unique host below."
+        },
+        "host": {
+          "type": "string",
+          "title": "Ingress host",
+          "default": "",
+          "description": "Unique hostname for this instance, e.g. unsloth-<name>.example.com. Required if Ingress is enabled."
+        }
+      }
+    }
+  }
+}

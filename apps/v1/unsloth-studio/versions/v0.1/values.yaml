@@ -1,0 +1,74 @@
+# Default values shown/edited in the Bridge deploy modal for unsloth-studio.
+# Mirrors the chart's own values.yaml defaults; the deploy form (schema.json)
+# surfaces the common knobs, everything here is the fallback base.
+
+image:
+  repository: unsloth/unsloth
+  tag: "2026.5.9-pt2.10.0-vllm-0.16.0-cu12.8-studio-release-v0.1.43-beta-2026-MAY-31"
+  pullPolicy: IfNotPresent
+
+# GPU is REQUIRED for the Studio training + Export tabs. Set enabled=false to
+# run CPU-only (Chat + Data Recipes only). If enabled and the cluster has no
+# GPU node, the pod stays Pending.
+gpu:
+  enabled: true
+  count: 1
+
+resources:
+  requests:
+    cpu: "4"
+    memory: "8Gi"
+  limits:
+    cpu: "8"
+    memory: "24Gi"
+
+ports:
+  studio: 8000
+  jupyter: 8888
+  ssh: 22
+
+probes:
+  enabled: true
+
+# REQUIRED — set a password at deploy time. Deploy fails if left blank.
+env:
+  jupyterPassword: ""
+  userPassword: ""
+
+args: []
+
+persistence:
+  enabled: true
+  storageClassName: ""
+  size: 50Gi
+
+hfCache:
+  enabled: true
+  size: 30Gi
+  storageClassName: ""
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# Off by default. Turn on and set a unique host per deploy to expose externally.
+ingress:
+  enabled: false
+  className: nginx
+  host: ""
+  tls:
+    enabled: false
+    secretName: unsloth-studio-tls
+  annotations: {}
+
+nodeSelector: {}
+tolerations: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  name: ""
+  automount: false
+  annotations: {}
