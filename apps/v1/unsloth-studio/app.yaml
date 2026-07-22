@@ -8,7 +8,7 @@ chart:
   repoURL: "https://achyuth-ammanath.github.io/bridge-charts"
   chartName: "unsloth-studio"
 
-logoURL: "https://raw.githubusercontent.com/armadasystems/bridge-catalog/refs/heads/unsloth-studio-app/icons/application_icons/unsloth_logo.jpg"
+logoURL: "https://raw.githubusercontent.com/armadasystems/bridge-catalog/refs/heads/staging/icons/application_icons/unsloth_logo.jpg"
 
 versions:
   - chartVersion: "0.1.0"
