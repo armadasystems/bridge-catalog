@@ -11,7 +11,7 @@ chart:
 logoURL: "https://raw.githubusercontent.com/armadasystems/bridge-catalog/refs/heads/staging/icons/application_icons/unsloth_logo.jpg"
 
 versions:
-  - chartVersion: "2026.7.27"
+  - chartVersion: "2026.7.23"
     appVersion: "v0.1"
     valuesFile: "values.yaml"
     schemaFile: "schema.json"
