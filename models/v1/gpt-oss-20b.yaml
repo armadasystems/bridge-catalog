@@ -1,4 +1,4 @@
-modelId: openai/gpt-oss-20b
+modelId: openai/gpt-oss-20b-base
 name: GPT-OSS 20B
 description: OpenAI's 20B open-weight reasoning model (MXFP4-quantized), designed to run on a single 16GB GPU.
 type: text-generation
