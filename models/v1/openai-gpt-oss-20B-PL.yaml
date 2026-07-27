@@ -22,5 +22,5 @@ resourceRequirements:
   requiredDiscSizeInGb:
 dType: []
 config:
-  supportedGpuTypes: ["NVIDIA-L4", "H100-SXM-80GB"]
+  supportedGpuTypes: ["L4", "H100-SXM-80GB"]
   maxPositionEmbeddings:
