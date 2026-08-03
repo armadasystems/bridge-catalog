@@ -7,6 +7,7 @@ tags: ["text", "reward-model"]
 logoUrl: ""
 repoUrl: "https://huggingface.co/nvidia/Qwen3-Nemotron-235B-A22B-GenRM"
 provider: huggingface
+modelProvider: NVIDIA
 source:
   type: huggingface
   revision: "main"

@@ -7,6 +7,7 @@ tags: ["text", "chat", "conversational", "reasoning"]
 logoUrl: ""
 repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4"
 provider: huggingface
+modelProvider: NVIDIA
 source:
   type: huggingface
   revision: "main"

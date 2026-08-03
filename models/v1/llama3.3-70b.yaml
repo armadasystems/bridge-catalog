@@ -8,6 +8,7 @@ tags: ["text", "chat", "conversational", "instruction-following"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/646cf8084eefb026fb8fd8bc/oCTqufkdTkjyGodsx1vo1.png"
 repoUrl: "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"
 provider: huggingface
+modelProvider: Llama
 source:
   type: huggingface
   revision: "main"

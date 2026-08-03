@@ -3,6 +3,7 @@ name: Qwen2.5 1.5B Instruct (Azure)
 description: A 1.5B parameter instruction-tuned model for conversational and task-oriented dialogue.
 type: text-generation
 provider: azureml
+modelProvider: Qwen
 tags:
   - text
   - chat

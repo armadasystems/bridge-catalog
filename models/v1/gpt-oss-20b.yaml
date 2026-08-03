@@ -7,6 +7,7 @@ tags: ["text", "chat", "reasoning", "open-weight"]
 logoUrl: ""
 repoUrl: "https://huggingface.co/openai/gpt-oss-20b"
 provider: huggingface
+modelProvider: OpenAI
 source:
   type: huggingface
   revision: "main"
