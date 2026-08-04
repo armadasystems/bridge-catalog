@@ -7,6 +7,7 @@ tags: ["text", "chat", "conversational", "reasoning", "gguf"]
 logoUrl: ""
 repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF"
 provider: huggingface
+modelProvider: NVIDIA
 source:
   type: huggingface
   revision: "main"

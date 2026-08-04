@@ -7,6 +7,7 @@ tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/5dd96eb166059660ed1ee413/WtA3YYitedOr9n02eHfJe.png"
 repoUrl: "https://huggingface.co/google/gemma-3-1b-it"
 provider: huggingface
+modelProvider: Google
 source:
   type: huggingface
   revision: "main"

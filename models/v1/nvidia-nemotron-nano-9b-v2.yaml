@@ -7,6 +7,7 @@ tags: ["text", "chat", "reasoning"]
 logoUrl: ""
 repoUrl: "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2"
 provider: huggingface
+modelProvider: NVIDIA
 source:
   type: huggingface
   revision: "main"

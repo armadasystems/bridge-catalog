@@ -7,6 +7,7 @@ tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/68783facef79a05727260de3/UPX5RQxiPGA-ZbBmArIKq.png"
 repoUrl: "https://huggingface.co/MultiverseComputingCAI/Hypernova-60B-2605"
 provider: huggingface
+modelProvider: Multiverse
 source:
   type: huggingface
   revision: "main"

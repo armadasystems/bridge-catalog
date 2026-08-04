@@ -7,6 +7,7 @@ tags: ["text", "chat", "reasoning", "math"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/1583646260758-5e64858c87403103f9f1055d.png"
 repoUrl: "https://huggingface.co/microsoft/phi-4"
 provider: huggingface
+modelProvider: Microsoft
 source:
   type: huggingface
   revision: "main"

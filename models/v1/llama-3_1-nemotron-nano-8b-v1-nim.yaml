@@ -7,6 +7,7 @@ tags: ["chat", "conversational", "instruction-following"]
 logoUrl: ""
 repoUrl: "https://build.nvidia.com/nvidia/llama-3_1-nemotron-nano-8b-v1"
 provider: nim
+modelProvider: Llama
 source:
   type: nim
   revision: ""
