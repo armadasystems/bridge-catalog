@@ -19,9 +19,9 @@ source:
   apiEndpoint: ""
 resourceRequirements:
   minRequiredRamInGb: 16
-  minRequiredVramInGb: 120
+  minRequiredVramInGb: 22
   requiredDiscSizeInGb:
 dType: []
 config:
   supportedGpuTypes: ["NVIDIA-L4", "H100-SXM-80GB"]
-  maxPositionEmbeddings:
+  maxPositionEmbeddings: 131072
