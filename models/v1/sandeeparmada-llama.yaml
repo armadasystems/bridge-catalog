@@ -1,6 +1,6 @@
 modelId: sandeeparmada/mistral-7b-instruct-v0.3-lora-oilgas
 name: Mistral-7b Instruct-v0.3-lora-oilgas
-description:
+description: This mistral model was trained 2x faster with Unsloth and Huggingface's TRL library.
 type: text-generation
 version: 1.0.0
 tags: ["text", "chat", "conversational"]
