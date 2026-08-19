@@ -1,0 +1,28 @@
+modelId: mistralai/Ministral-3-3B-Instruct-2512-BF16
+name: Ministral 3 3B Instruct (BF16)
+description: "BF16 build of Mistral's 3B edge model with vision input and a 256K context window, for GPUs without FP8 support. Pre-Ampere cards (e.g. Tesla T4) have no native bfloat16 either and must be deployed with dtype float16."
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-BF16"
+provider: huggingface
+modelProvider: Mistral
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-BF16"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 8
+  minRequiredVramInGb: 16
+  requiredDiscSizeInGb: 16
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144
+metadata:
+  securityScan: true

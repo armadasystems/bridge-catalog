@@ -1,0 +1,28 @@
+modelId: mistralai/Ministral-3-8B-Instruct-2512
+name: Ministral 3 8B Instruct (FP8)
+description: Mistral's 8B edge model with vision input and a 256K context window, shipped FP8-quantized. Requires an FP8-capable GPU (Ada/Hopper or newer).
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512"
+provider: huggingface
+modelProvider: Mistral
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 22
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 262144
+metadata:
+  securityScan: true

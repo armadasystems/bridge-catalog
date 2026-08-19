@@ -1,6 +1,6 @@
 modelId: mistralai/Mistral-7B-Instruct-v0.2
 name: Mistral 7B Instruct
-description: A 7B parameter instruction-tuned Mistral model hosted on Hugging Face for chat applications.
+description: Previous-generation model. A 7B parameter instruction-tuned Mistral model hosted on Hugging Face for chat applications.
 type: text-generation
 version: 1.0.0
 tags: ["chat", "conversational", "instruction-following"]
