@@ -1,0 +1,26 @@
+modelId: CohereLabs/command-a-plus-05-2026-fp8
+name: Cohere Command A+ (FP8)
+description: FP8 8-bit quantized build of Cohere's flagship 218B MoE model (25B active params) for reduced-VRAM serving, with a 128K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-fp8"
+provider: huggingface
+modelProvider: Cohere
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-fp8"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 320
+  requiredDiscSizeInGb: 218
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 131072

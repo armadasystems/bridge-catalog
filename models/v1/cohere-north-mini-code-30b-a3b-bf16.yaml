@@ -1,0 +1,26 @@
+modelId: CohereLabs/North-Mini-Code-1.0
+name: Cohere North Mini Code 1.0 (BF16)
+description: Full-precision BF16 build of the 30B North Mini Code MoE model (3B active params), Cohere's first developer model, trained for agentic software engineering with a 256K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/CohereLabs/North-Mini-Code-1.0"
+provider: huggingface
+modelProvider: Cohere
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/CohereLabs/North-Mini-Code-1.0"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 80
+  requiredDiscSizeInGb: 60
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 262144
