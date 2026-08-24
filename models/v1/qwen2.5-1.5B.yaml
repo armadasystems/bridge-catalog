@@ -6,21 +6,25 @@ version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/620760a26e3b7210c2ff1943/-s1gyJfvbE1RgO5iBeNOi.png"
 repoUrl: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
-provider: huggingface
 modelProvider: Qwen
-source:
+
+# origin = where the bundle DOWNLOADS from (internet side, build machine).
+origin:
   type: huggingface
+  repository: "Qwen/Qwen2.5-1.5B-Instruct"
   revision: "main"
-  version: ""
-  repository: "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"
+
+# provider/source = where the runtime FETCHES from (air-gap: bridge SeaweedFS).
+# path slug = modelId lowercased with '/'->'-'  (must match the bundle's weights dir).
+provider: s3
+source:
+  type: s3
+  path: "s3://models/qwen-qwen2.5-1.5b-instruct/"
   requiresAuth: false
-  license: "custom"
-  containerImage: ""
-  apiEndpoint: ""
 resourceRequirements:
   minRequiredRamInGb: 6
   minRequiredVramInGb: 4
-  requiredDiscSizeInGbInGb:
+  requiredDiscSizeInGb: 16
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 32768

@@ -7,13 +7,18 @@
 replicaCount: 1
 
 # Image of mlflow
+# Air-gap: rehomed from the upstream burakince/mlflow to the amcop/ Harbor project,
+# with the seed registry named explicitly so the pull does not depend on containerd's
+# docker.io -> Harbor mirror being configured on the node.
+# This chart has no image.registry key (its template renders a bare "<repository>:<tag>"),
+# so the host has to be carried in repository. Must stay in sync with harbor_seed_images.
 image:
   # -- The docker image repository to use
-  repository: burakince/mlflow
+  repository: harbor.internal.local/amcop/mlflow
   # -- The docker image pull policy
   pullPolicy: IfNotPresent
   # -- The docker image tag to use. Default app version
-  tag: ""
+  tag: "3.3.2"
 
 # -- This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 strategy:

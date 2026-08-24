@@ -77,9 +77,14 @@ diagnosticMode:
 ## @param image.pullSecrets Specify docker-registry secret names as an array
 ## @param image.debug Set to true if you would like to see extra information on logs
 ##
+## Air-gap: rehomed from bitnamilegacy/ to the amcop/ Harbor project, with the seed
+## registry named explicitly so the pull does not depend on containerd's docker.io ->
+## Harbor mirror being configured on the node.
+## Must stay in sync with schema.json (that is what the UI actually submits) and with
+## harbor_seed_images.
 image:
-  registry: docker.io
-  repository: bitnamilegacy/nginx
+  registry: harbor.internal.local
+  repository: amcop/nginx
   tag: 1.26.0-debian-12-r0
   digest: ""
   ## Specify a imagePullPolicy

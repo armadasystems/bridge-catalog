@@ -13,7 +13,7 @@
         "properties": {
           "registry": {
             "type": "string",
-            "default": "docker.io"
+            "default": "harbor.internal.local"
           },
           "repository": {
             "type": "string",

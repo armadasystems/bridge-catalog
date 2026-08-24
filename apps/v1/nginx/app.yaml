@@ -4,11 +4,16 @@ description: "High-performance HTTP and reverse proxy server"
 category: "Infrastructure"
 tags: ["nginx", "web", "proxy"]
 
+# Air-gap: chart is pulled from the seed Harbor's OCI `helm` project, not gitlab.com.
+# k8s-manager passes repoURL through verbatim (it applies no registry override to
+# catalog workloads), so this must be the literal seed host. Charts are pushed as
+# helm/<name>:<version>, so chartName + chartVersion below resolve unchanged.
 chart:
-  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
+  repoURL: "oci://harbor.internal.local/helm"
   chartName: "nginx"
 
-logoURL: "https://artifacthub.io/image/df8b0c56-3686-47ad-b3cf-44ab4c2ef096@1x"
+# Air-gap: served from the seed Gitea's mirror of this repo instead of artifacthub.io.
+logoURL: "https://gitea.internal.local/amcop/catalog/raw/branch/airgap-apps-models/icons/application_icons/nginx.png"
 
 versions:
   - chartVersion: "15.6.2"

@@ -6,21 +6,28 @@ version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/5dd96eb166059660ed1ee413/WtA3YYitedOr9n02eHfJe.png"
 repoUrl: "https://huggingface.co/google/gemma-3-1b-it"
-provider: huggingface
 modelProvider: Google
-source:
+
+# origin = where the bundle DOWNLOADS from (internet side, build machine).
+# NOTE: google/gemma-3-1b-it is a GATED HuggingFace repo — bundling it needs an
+# HF token (HF_TOKEN / model_pack_hf_token) whose account has accepted the Gemma
+# license. The runtime (air-gap) fetch below is from SeaweedFS and needs no HF auth.
+origin:
   type: huggingface
+  repository: "google/gemma-3-1b-it"
   revision: "main"
-  version: ""
-  repository: "https://huggingface.co/google/gemma-3-1b-it"
-  requiresAuth: true
-  license: "custom"
-  containerImage: ""
-  apiEndpoint: ""
+
+# provider/source = where the runtime FETCHES from (air-gap: bridge SeaweedFS).
+# path slug = modelId lowercased with '/'->'-'  (must match the bundle's weights dir).
+provider: s3
+source:
+  type: s3
+  path: "s3://models/google-gemma-3-1b-it/"
+  requiresAuth: false
 resourceRequirements:
   minRequiredRamInGb: 6
   minRequiredVramInGb: 4
-  requiredDiscSizeInGb:
+  requiredDiscSizeInGb: 8
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 32768

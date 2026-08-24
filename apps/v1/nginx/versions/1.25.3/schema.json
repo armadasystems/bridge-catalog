@@ -8,6 +8,28 @@
         "default": 1,
         "minimum": 1
       },
+      "image": {
+        "type": "object",
+        "title": "Image Settings",
+        "properties": {
+          "registry": {
+            "type": "string",
+            "default": "harbor.internal.local"
+          },
+          "repository": {
+            "type": "string",
+            "default": "amcop/nginx"
+          },
+          "tag": {
+            "type": "string",
+            "default": "1.25.3-debian-11-r4"
+          },
+          "pullPolicy": {
+            "type": "string",
+            "default": "IfNotPresent"
+          }
+        }
+      },
       "service": {
         "type": "object",
         "title": "Service Configuration",

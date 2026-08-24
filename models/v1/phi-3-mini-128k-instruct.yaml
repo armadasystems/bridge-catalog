@@ -6,21 +6,26 @@ version: 1.0.0
 tags: ["text", "chat", "conversational"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/1583646260758-5e64858c87403103f9f1055d.png"
 repoUrl: "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct"
-provider: huggingface
 modelProvider: Microsoft
-source:
+
+# origin = where the bundle DOWNLOADS from (internet side, build machine).
+# Open (ungated) repo — no HF token required to bundle.
+origin:
   type: huggingface
+  repository: "microsoft/Phi-3-mini-128k-instruct"
   revision: "main"
-  version: ""
-  repository: "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct"
+
+# provider/source = where the runtime FETCHES from (air-gap: bridge SeaweedFS).
+# path slug = modelId lowercased with '/'->'-'  (must match the bundle's weights dir).
+provider: s3
+source:
+  type: s3
+  path: "s3://models/microsoft-phi-3-mini-128k-instruct/"
   requiresAuth: false
-  license: "custom"
-  containerImage: ""
-  apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 6
+  minRequiredRamInGb: 8
   minRequiredVramInGb: 10
-  requiredDiscSizeInGb:
+  requiredDiscSizeInGb: 16
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 131072

@@ -4,11 +4,16 @@ description: "MLflow is a platform for managing the machine learning lifecycleâ€
 category: "MLOps"
 tags: ["mlflow", "mlops"]
 
+# Air-gap: chart is pulled from the seed Harbor's OCI `helm` project, not gitlab.com.
+# k8s-manager passes repoURL through verbatim (it applies no registry override to
+# catalog workloads), so this must be the literal seed host. Charts are pushed as
+# helm/<name>:<version>, so chartName + chartVersion below resolve unchanged.
 chart:
-  repoURL: "https://gitlab.com/api/v4/projects/54152051/packages/helm/devel"
+  repoURL: "oci://harbor.internal.local/helm"
   chartName: "mlflow"
 
-logoURL: "https://app-catalog-logos.s3.us-west-2.amazonaws.com/mlflow_logo.svg"
+# Air-gap: served from the seed Gitea's mirror of this repo instead of S3.
+logoURL: "https://gitea.internal.local/amcop/catalog/raw/branch/airgap-apps-models/icons/application_icons/ml_flow.svg"
 
 versions:
   - chartVersion: "1.6.2"

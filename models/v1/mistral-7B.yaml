@@ -1,26 +1,31 @@
 modelId: mistralai/Mistral-7B-Instruct-v0.2
 name: Mistral 7B Instruct
-description: A 7B parameter instruction-tuned Mistral model hosted on Hugging Face for chat applications.
+description: A 7B parameter instruction-tuned Mistral model for chat and instruction-following applications, released under the Apache 2.0 license.
 type: text-generation
 version: 1.0.0
 tags: ["chat", "conversational", "instruction-following"]
 logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
 repoUrl: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2"
-provider: huggingface
 modelProvider: Mistral
-source:
+
+# origin = where the bundle DOWNLOADS from (internet side, build machine).
+# Open (ungated) repo — no HF token required to bundle.
+origin:
   type: huggingface
+  repository: "mistralai/Mistral-7B-Instruct-v0.2"
   revision: "main"
-  version: ""
-  repository: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2"
+
+# provider/source = where the runtime FETCHES from (air-gap: bridge SeaweedFS).
+# path slug = modelId lowercased with '/'->'-'  (must match the bundle's weights dir).
+provider: s3
+source:
+  type: s3
+  path: "s3://models/mistralai-mistral-7b-instruct-v0.2/"
   requiresAuth: false
-  license: "custom"
-  containerImage: ""
-  apiEndpoint: ""
 resourceRequirements:
-  minRequiredRamInGb: 6
+  minRequiredRamInGb: 16
   minRequiredVramInGb: 16
-  requiredDiscSizeInGb:
+  requiredDiscSizeInGb: 20
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 32768
