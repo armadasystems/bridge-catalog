@@ -24,3 +24,5 @@ resourceRequirements:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
   maxPositionEmbeddings: 131072
+  toolCallParser: cohere_command4
+  reasoningParser: cohere_command4

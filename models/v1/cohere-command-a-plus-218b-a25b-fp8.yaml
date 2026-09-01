@@ -24,3 +24,5 @@ resourceRequirements:
 dType: ["auto"]
 config:
   maxPositionEmbeddings: 131072
+  toolCallParser: cohere_command4
+  reasoningParser: cohere_command4
