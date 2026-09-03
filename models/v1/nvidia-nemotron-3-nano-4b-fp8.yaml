@@ -19,7 +19,7 @@ source:
   apiEndpoint: ""
 resourceRequirements:
   minRequiredRamInGb: 8
-  minRequiredVramInGb: 12
+  minRequiredVramInGb: 11
   requiredDiscSizeInGb: 8
 dType: ["auto"]
 config:

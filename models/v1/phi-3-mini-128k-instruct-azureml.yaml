@@ -22,7 +22,7 @@ source:
   requiresAuth: false
 resourceRequirements:
   minRequiredRamInGb: 6
-  minRequiredVramInGb: 10
+  minRequiredVramInGb: 59
   requiredDiscSizeInGb: 50
 config:
   maxPositionEmbeddings: 131072

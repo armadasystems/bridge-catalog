@@ -19,7 +19,7 @@ source:
   apiEndpoint: ""
 resourceRequirements:
   minRequiredRamInGb: 16
-  minRequiredVramInGb: 256
+  minRequiredVramInGb: 243
   requiredDiscSizeInGb: 248
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:

@@ -19,8 +19,8 @@ source:
   apiEndpoint: ""
 resourceRequirements:
   minRequiredRamInGb: 6
-  minRequiredVramInGb: 32
+  minRequiredVramInGb: 55
   requiredDiscSizeInGb:
 dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
 config:
-  maxPositionEmbeddings: 2048
+  maxPositionEmbeddings: 131072
