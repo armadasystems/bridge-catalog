@@ -1,6 +1,6 @@
 modelId: mistralai/Mistral-Nemo-Instruct-2407
 name: Mistral Nemo Instruct
-description: A 12B instruction model built by Mistral with NVIDIA, featuring a 128k context window.
+description: Previous-generation model. A 12B instruction model built by Mistral with NVIDIA, featuring a 128k context window.
 type: text-generation
 version: 1.0.0
 tags: ["chat", "conversational", "instruction-following"]

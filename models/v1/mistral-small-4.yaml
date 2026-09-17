@@ -1,0 +1,28 @@
+modelId: mistralai/Mistral-Small-4-119B-2603
+name: Mistral Small 4 119B (FP8)
+description: Mistral's 119B sparse MoE model (128 routed experts, 4 active per token) with vision input and a 1M-token context window, shipped FP8-quantized.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "instruction-following"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/634c17653d11eaedd88b314d/9OgyfKstSZtbmsmuG8MbU.png"
+repoUrl: "https://huggingface.co/mistralai/Mistral-Small-4-119B-2603"
+provider: huggingface
+modelProvider: Mistral
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/mistralai/Mistral-Small-4-119B-2603"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 144
+  requiredDiscSizeInGb: 250
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 1048576
+metadata:
+  securityScan: true
