@@ -25,3 +25,9 @@ dType: []
 config:
   supportedGpuTypes: ["NVIDIA-L4", "H100-SXM-80GB"]
   maxPositionEmbeddings: 131072
+  # Inert on this entry's own deploy path -- provider: primalabs serves through
+  # vllmopt, which takes no engine kwargs. It is here because this file shares
+  # `modelId: openai/gpt-oss-20b` with gpt-oss-20b.yaml, so both seed into one
+  # catalogue row and the file seeded last defines its config. Omitting it here
+  # silently stripped the parser the Ray-backed entry needs.
+  toolCallParser: openai
