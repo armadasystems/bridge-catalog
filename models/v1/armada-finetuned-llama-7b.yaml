@@ -1,0 +1,26 @@
+modelId: armada/mistral-7b-instruct-v0.3-lora-oilgas
+name: Mistral-7b Instruct-v0.3-lora-oilgas
+description: This mistral model was trained 2x faster with Unsloth and Huggingface's TRL library.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/1583646260758-5e64858c87403103f9f1055d.png"
+repoUrl: "https://huggingface.co/armada/mistral-7b-instruct-v0.3-lora-oilgas"
+provider: huggingface
+modelProvider: Microsoft
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/armada/mistral-7b-instruct-v0.3-lora-oilgas"
+  requiresAuth: false
+  license: "custom"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 6
+  minRequiredVramInGb: 10
+  requiredDiscSizeInGb:
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 32768
