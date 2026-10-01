@@ -35,13 +35,24 @@ def ensure_full_history(repo: Path) -> None:
         )
 
 
-def first_added_date(repo: Path, rel_path: str, follow: bool) -> str | None:
+# on_branch=True: only commits on the checked-out branch's first-parent line (merges into
+# staging, not feature-branch commits), dated when they landed there (committer date).
+# on_branch=False: every commit, dated when it was written (author date).
+def _history_args(on_branch: bool) -> list[str]:
+    if on_branch:
+        return ["--first-parent", "--diff-merges=first-parent", "--format=@%H %cd"]
+    return ["--format=@%H %ad"]
+
+
+def first_added_date(repo: Path, rel_path: str, follow: bool, on_branch: bool = False) -> str | None:
     """Date of the oldest commit that added rel_path (or any file under it)."""
-    args = ["log", "--diff-filter=A", "--format=%ad", "--date=short"]
+    # --name-only: --diff-merges would otherwise turn on full patch output.
+    args = ["log", "--diff-filter=A", *_history_args(on_branch), "--date=short", "--name-only"]
     if follow:
         args.append("--follow")
-    lines = _git(repo, *args, "--", rel_path).splitlines()
-    return lines[-1] if lines else None
+    log = _git(repo, *args, "--", rel_path)
+    dates = [line.split(" ", 1)[1] for line in log.splitlines() if line.startswith("@")]
+    return dates[-1] if dates else None
 
 
 def last_updated_date(repo: Path, rel_path: str) -> str | None:
@@ -149,7 +160,9 @@ def _identity_at(repo: Path, rev: str, rel_path: str) -> str | None:
         return None
 
 
-def model_start_date(repo: Path, rel_path: str, identity: str | None) -> str | None:
+def model_start_date(
+    repo: Path, rel_path: str, identity: str | None, on_branch: bool = False
+) -> str | None:
     """First-added date, following renames only while the model stayed the same.
 
     git's rename detection is a similarity guess: deleting one model and adding a
@@ -157,7 +170,7 @@ def model_start_date(repo: Path, rel_path: str, identity: str | None) -> str | N
     had a different modelId (or name) counts as the new model being added.
     """
     log = _git(
-        repo, "log", "--follow", "--format=@%H %ad", "--date=short", "--name-status",
+        repo, "log", "--follow", *_history_args(on_branch), "--date=short", "--name-status",
         "--", rel_path,
     )
     sha = date = start = None
@@ -185,7 +198,8 @@ def model_row(repo: Path, path: Path) -> dict:
         "source": derive_source(doc, tracking),
         "type": "Model",
         "name": name,
-        "start_date": model_start_date(repo, rel, _identity(doc)),
+        "start_date": model_start_date(repo, rel, _identity(doc), on_branch=True),
+        "first_commit_date": model_start_date(repo, rel, _identity(doc)),
         "end_date": tracking["end_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
@@ -219,7 +233,8 @@ def app_row(repo: Path, app_dir: Path) -> dict:
         "partner": tracking["partner"] or name,
         "type": tracking["type"] or "App",
         "name": name,
-        "start_date": first_added_date(repo, rel_dir, follow=False),
+        "start_date": first_added_date(repo, rel_dir, follow=False, on_branch=True),
+        "first_commit_date": first_added_date(repo, rel_dir, follow=False),
         "end_date": tracking["end_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],

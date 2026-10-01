@@ -20,7 +20,9 @@ This repository serves as a central hub for managing and deploying applications 
 Every merge to `staging` runs `.github/workflows/catalog-snapshot.yml`, which exports all
 models (`models/v1`) and apps (`apps/v1`) to a GitHub Actions artifact named
 `bridge-catalog-snapshot` (`models.jsonl`, `apps.jsonl`, `manifest.json`). The data team loads
-it into StarRocks for the Pulse/Omni dashboard. Start Date comes from git automatically.
+it into StarRocks for the Pulse/Omni dashboard. Dates come from git automatically:
+`start_date` is when the model/app was merged into `staging`, `first_commit_date` is when its
+YAML was first committed (on any branch).
 
 Optional `tracking` block, for the dashboard only (Bridge ignores it):
 

@@ -21,12 +21,27 @@ class GitRepo:
         path.write_text(text, encoding="utf-8")
         return path
 
-    def commit(self, message: str, date: str) -> None:
-        stamp = f"{date}T12:00:00+00:00"
-        env = {**os.environ, "GIT_AUTHOR_DATE": stamp, "GIT_COMMITTER_DATE": stamp}
+    @staticmethod
+    def _env(authored: str, landed: str) -> dict:
+        return {
+            **os.environ,
+            "GIT_AUTHOR_DATE": f"{authored}T12:00:00+00:00",
+            "GIT_COMMITTER_DATE": f"{landed}T12:00:00+00:00",
+        }
+
+    def commit(self, message: str, date: str, landed: str | None = None) -> None:
+        """Commit everything. `landed` = committer date (e.g. a rebase-merge), defaults to `date`."""
         subprocess.run(["git", "add", "-A"], cwd=self.root, check=True)
         subprocess.run(
-            ["git", "commit", "-q", "-m", message], cwd=self.root, check=True, env=env
+            ["git", "commit", "-q", "-m", message],
+            cwd=self.root, check=True, env=self._env(date, landed or date),
+        )
+
+    def merge(self, branch: str, date: str) -> None:
+        """Merge `branch` into the current branch with a merge commit, like a GitHub PR merge."""
+        subprocess.run(
+            ["git", "merge", "-q", "--no-ff", "-m", f"Merge {branch}", branch],
+            cwd=self.root, check=True, env=self._env(date, date),
         )
 
 

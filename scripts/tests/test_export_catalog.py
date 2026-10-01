@@ -157,6 +157,7 @@ def test_model_row(repo):
         "type": "Model",
         "name": "Ministral 3 8B Instruct (FP8)",
         "start_date": "2026-08-19",
+        "first_commit_date": "2026-08-19",
         "end_date": "2026-09-10",
         "status": "live",
         "status_note": None,
@@ -199,6 +200,7 @@ def test_app_row_defaults(repo):
         "type": "App",
         "name": "Open WebUI",
         "start_date": "2025-08-06",
+        "first_commit_date": "2025-08-06",
         "end_date": None,
         "status": None,
         "status_note": None,
@@ -372,3 +374,41 @@ def test_start_date_keeps_rename_of_the_same_model(repo):
     repo.commit("fix file name", "2025-11-28")
     path = repo.root / "models/v1/qwen2.5-1.5B.yaml"
     assert ec.model_row(repo.root, path)["start_date"] == "2025-07-29"
+
+
+def _merge_feature(repo, rel: str, text: str, authored: str, merged: str) -> None:
+    """Commit `rel` on a feature branch on `authored`, merge it into staging on `merged`."""
+    repo.write("README.md", "base\n")
+    repo.commit("base", "2025-01-01")
+    repo.run("checkout", "-q", "-b", "feat")
+    repo.write(rel, text)
+    repo.commit("add on feature branch", authored)
+    repo.run("checkout", "-q", "staging")
+    repo.merge("feat", merged)
+
+
+def test_model_start_date_is_merge_into_staging(repo):
+    _merge_feature(repo, "models/v1/m.yaml", MODEL_TEXT, "2026-08-19", "2026-09-17")
+    row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
+    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
+
+
+def test_app_start_date_is_merge_into_staging(repo):
+    _merge_feature(repo, "apps/v1/x/app.yaml", APP_TEXT, "2026-02-06", "2026-07-08")
+    row = ec.app_row(repo.root, repo.root / "apps/v1/x")
+    assert (row["start_date"], row["first_commit_date"]) == ("2026-07-08", "2026-02-06")
+
+
+def test_start_date_survives_rename_after_merge(repo):
+    _merge_feature(repo, "models/v1/llama2-7b.yaml", MODEL_TEXT + VARIANT_BODY, "2025-07-20", "2025-07-29")
+    repo.run("mv", "models/v1/llama2-7b.yaml", "models/v1/llama3-8b.yaml")
+    repo.commit("fix file name", "2026-06-30")
+    row = ec.model_row(repo.root, repo.root / "models/v1/llama3-8b.yaml")
+    assert (row["start_date"], row["first_commit_date"]) == ("2025-07-29", "2025-07-20")
+
+
+def test_start_date_uses_landing_date_for_rebased_commits(repo):
+    repo.write("models/v1/m.yaml", MODEL_TEXT)
+    repo.commit("rebase-merged", "2026-08-19", landed="2026-09-17")
+    row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
+    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
