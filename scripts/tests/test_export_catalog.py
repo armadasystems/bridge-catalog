@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import subprocess
 
 import pytest
@@ -232,3 +233,92 @@ def test_app_row_requires_app_yaml(repo):
     repo.commit("add", "2025-07-29")
     with pytest.raises(ec.CatalogError, match="apps/v1/empty/app.yaml: missing"):
         ec.app_row(repo.root, repo.root / "apps/v1/empty")
+
+
+NOW = dt.datetime(2026, 10, 1, 10, 0, tzinfo=dt.timezone.utc)
+
+
+def seed_catalog(repo):
+    repo.write("models/v1/mistral-7B.yaml", "name: Mistral 7B Instruct\nprovider: huggingface\nmodelProvider: Mistral\n")
+    repo.write("models/v1/mistral-7b-instruct-v03-nim.yaml", "name: Mistral 7B Instruct\nprovider: nim\nmodelProvider: Mistral\n")
+    repo.write("models/v1/a-qwen.yaml", "name: Qwen2.5 1.5B Instruct – ünïcode\nprovider: huggingface\nmodelProvider: Qwen\n")
+    repo.write("apps/v1/mlflow/app.yaml", 'displayName: "MLflow"\ncategory: "MLOps"\n')
+    repo.commit("seed", "2025-07-29")
+
+
+def test_build_snapshot_sorted_by_id(repo):
+    seed_catalog(repo)
+    models, apps = ec.build_snapshot(repo.root)
+    assert [m["id"] for m in models] == ["a-qwen", "mistral-7B", "mistral-7b-instruct-v03-nim"]
+    assert [a["id"] for a in apps] == ["mlflow"]
+
+
+def test_duplicate_names_are_both_exported(repo):
+    seed_catalog(repo)
+    models, _ = ec.build_snapshot(repo.root)
+    mistral = {m["id"]: m["source"] for m in models if m["name"] == "Mistral 7B Instruct"}
+    assert mistral == {"mistral-7B": "Mistral AI", "mistral-7b-instruct-v03-nim": "Nvidia NIM"}
+
+
+def test_build_snapshot_requires_models_dir(repo):
+    repo.write("README.md", "x\n")
+    repo.commit("init", "2025-01-01")
+    with pytest.raises(ec.CatalogError, match="models/v1"):
+        ec.build_snapshot(repo.root)
+
+
+def test_manifest_from_github_env(repo):
+    seed_catalog(repo)
+    models, apps = ec.build_snapshot(repo.root)
+    env = {"GITHUB_RUN_ID": "123", "GITHUB_RUN_ATTEMPT": "2", "GITHUB_REF_NAME": "staging"}
+    manifest = ec.build_manifest(repo.root, models, apps, env, NOW)
+    sha = subprocess.run(["git", "-C", str(repo.root), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    assert manifest == {
+        "schema_version": 1,
+        "snapshot_id": "123-2",
+        "commit_sha": sha,
+        "branch": "staging",
+        "generated_at": "2026-10-01T10:00:00Z",
+        "model_count": 3,
+        "app_count": 1,
+    }
+
+
+def test_manifest_local_run(repo):
+    seed_catalog(repo)
+    manifest = ec.build_manifest(repo.root, [], [], {}, NOW)
+    assert manifest["snapshot_id"] == f"local-{manifest['commit_sha'][:12]}"
+    assert manifest["branch"] == "staging"
+
+
+def test_main_writes_snapshot(repo, tmp_path, monkeypatch):
+    seed_catalog(repo)
+    monkeypatch.setenv("GITHUB_RUN_ID", "99")
+    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)  # set when CI runs the tests
+    out = tmp_path / "out"
+
+    assert ec.main(["--repo", str(repo.root), "--out", str(out)]) == 0
+
+    lines = (out / "models.jsonl").read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 3
+    assert "ünïcode" in lines[0]  # written as UTF-8, not \u escapes
+    assert json.loads(lines[0])["start_date"] == "2025-07-29"
+    assert len((out / "apps.jsonl").read_text(encoding="utf-8").splitlines()) == 1
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["snapshot_id"] == "99-1"
+    assert (manifest["model_count"], manifest["app_count"]) == (3, 1)
+
+
+def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
+    seed_catalog(repo)
+    repo.write("models/v1/broken.yaml", "name: [unclosed\n")
+    repo.commit("break", "2026-01-01")
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "models.jsonl").write_text("previous\n", encoding="utf-8")
+
+    assert ec.main(["--repo", str(repo.root), "--out", str(out)]) == 1
+
+    assert "models/v1/broken.yaml" in capsys.readouterr().err
+    assert (out / "models.jsonl").read_text(encoding="utf-8") == "previous\n"
+    assert not (out / "manifest.json").exists()

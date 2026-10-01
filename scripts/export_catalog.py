@@ -2,8 +2,13 @@
 """Export bridge-catalog models and apps as a snapshot for the Pulse dashboard."""
 from __future__ import annotations
 
+import argparse
 import datetime as dt
+import json
+import os
 import subprocess
+import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 import yaml
@@ -185,3 +190,80 @@ def app_row(repo: Path, app_dir: Path) -> dict:
         "file_path": rel,
         "last_updated": last_updated_date(repo, rel_dir),
     }
+
+
+MODELS_DIR = "models/v1"
+APPS_DIR = "apps/v1"
+SCHEMA_VERSION = 1
+
+
+def build_snapshot(repo: Path) -> tuple[list[dict], list[dict]]:
+    """Every model and app row, sorted by id. Raises CatalogError on any bad file."""
+    ensure_full_history(repo)
+    models_dir = repo / MODELS_DIR
+    if not models_dir.is_dir():
+        raise CatalogError(f"{MODELS_DIR}: directory not found in {repo}")
+    # Recursive, .yaml and .yml — same set model-catalog-service loads.
+    model_files = sorted(
+        p for p in models_dir.rglob("*") if p.is_file() and p.suffix.lower() in (".yaml", ".yml")
+    )
+    models = sorted((model_row(repo, p) for p in model_files), key=lambda row: row["id"])
+    apps_dir = repo / APPS_DIR
+    app_dirs = sorted(p for p in apps_dir.iterdir() if p.is_dir()) if apps_dir.is_dir() else []
+    apps = sorted((app_row(repo, d) for d in app_dirs), key=lambda row: row["id"])
+    return models, apps
+
+
+def build_manifest(
+    repo: Path, models: list[dict], apps: list[dict], env: Mapping[str, str], now: dt.datetime
+) -> dict:
+    sha = _git(repo, "rev-parse", "HEAD")
+    run_id = env.get("GITHUB_RUN_ID")
+    if run_id:
+        snapshot_id = f"{run_id}-{env.get('GITHUB_RUN_ATTEMPT', '1')}"
+    else:
+        snapshot_id = f"local-{sha[:12]}"
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "snapshot_id": snapshot_id,
+        "commit_sha": sha,
+        "branch": env.get("GITHUB_REF_NAME") or _git(repo, "branch", "--show-current") or None,
+        "generated_at": now.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "model_count": len(models),
+        "app_count": len(apps),
+    }
+
+
+def _write_jsonl(path: Path, rows: list[dict]) -> None:
+    with path.open("w", encoding="utf-8") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def write_snapshot(out_dir: Path, models: list[dict], apps: list[dict], manifest: dict) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    _write_jsonl(out_dir / "models.jsonl", models)
+    _write_jsonl(out_dir / "apps.jsonl", apps)
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Export the catalog snapshot for Pulse.")
+    parser.add_argument("--repo", type=Path, default=Path("."), help="bridge-catalog checkout")
+    parser.add_argument("--out", type=Path, default=Path("out"), help="output directory")
+    args = parser.parse_args(argv)
+    repo = args.repo.resolve()
+    try:
+        # Build everything before writing so a bad file never leaves partial output.
+        models, apps = build_snapshot(repo)
+        manifest = build_manifest(repo, models, apps, os.environ, dt.datetime.now(dt.timezone.utc))
+    except CatalogError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    write_snapshot(args.out, models, apps, manifest)
+    print(f"wrote {len(models)} models and {len(apps)} apps to {args.out}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
