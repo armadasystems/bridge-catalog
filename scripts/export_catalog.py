@@ -6,6 +6,8 @@ import datetime as dt
 import subprocess
 from pathlib import Path
 
+import yaml
+
 
 class CatalogError(Exception):
     """A catalog file or the checkout is not in a state we can export."""
@@ -91,4 +93,62 @@ def parse_tracking(doc: dict, where: str) -> dict:
         "source": _optional_str(raw.get("source")),
         "partner": _optional_str(raw.get("partner")),
         "type": _optional_str(raw.get("type")),
+    }
+
+
+PROVIDER_SOURCES = {"azureml": "Azure ML", "nim": "Nvidia NIM", "primalabs": "PrimaLabs"}
+MODEL_PROVIDER_SOURCES = {
+    "Mistral": "Mistral AI",
+    "NVIDIA": "NVIDIA (HuggingFace)",
+    "Multiverse": "Multiverse Computing",
+}
+DEFAULT_SOURCE = "HuggingFace (direct)"
+
+
+def load_yaml(path: Path, where: str) -> dict:
+    try:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise CatalogError(f"{where}: invalid YAML: {exc}") from exc
+    if not isinstance(doc, dict):
+        raise CatalogError(f"{where}: expected a mapping at the top level")
+    return doc
+
+
+def derive_source(doc: dict, tracking: dict) -> str:
+    """The Excel "Source" column: delivery channel, or the partner for partner models."""
+    if tracking["source"]:
+        return tracking["source"]
+    provider = (_optional_str(doc.get("provider")) or "").lower()
+    if provider in PROVIDER_SOURCES:
+        return PROVIDER_SOURCES[provider]
+    model_provider = _optional_str(doc.get("modelProvider")) or ""
+    return MODEL_PROVIDER_SOURCES.get(model_provider, DEFAULT_SOURCE)
+
+
+def _rel(repo: Path, path: Path) -> str:
+    return path.relative_to(repo).as_posix()
+
+
+def model_row(repo: Path, path: Path) -> dict:
+    rel = _rel(repo, path)
+    doc = load_yaml(path, rel)
+    name = _optional_str(doc.get("name"))
+    if not name:
+        raise CatalogError(f"{rel}: missing name")
+    tracking = parse_tracking(doc, rel)
+    return {
+        "id": path.stem,
+        "source": derive_source(doc, tracking),
+        "type": "Model",
+        "name": name,
+        "start_date": first_added_date(repo, rel, follow=True),
+        "end_date": tracking["end_date"],
+        "status": tracking["status"],
+        "status_note": tracking["note"],
+        "model_provider": _optional_str(doc.get("modelProvider")),
+        "provider": _optional_str(doc.get("provider")),
+        "model_id": _optional_str(doc.get("modelId")),
+        "file_path": rel,
+        "last_updated": last_updated_date(repo, rel),
     }

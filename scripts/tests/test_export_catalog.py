@@ -114,3 +114,69 @@ def test_tracking_rejects_bad_values(block, message):
     with pytest.raises(ec.CatalogError, match=message) as info:
         ec.parse_tracking(yaml.safe_load(block), "models/v1/x.yaml")
     assert "models/v1/x.yaml" in str(info.value)
+
+
+@pytest.mark.parametrize(
+    "provider, model_provider, expected",
+    [
+        ("azureml", "Qwen", "Azure ML"),
+        ("nim", "Mistral", "Nvidia NIM"),
+        ("primalabs", "OpenAI", "PrimaLabs"),
+        ("huggingface", "Mistral", "Mistral AI"),
+        ("huggingface", "NVIDIA", "NVIDIA (HuggingFace)"),
+        ("huggingface", "Multiverse", "Multiverse Computing"),
+        ("huggingface", "Qwen", "HuggingFace (direct)"),
+        (None, None, "HuggingFace (direct)"),
+    ],
+)
+def test_derive_source(provider, model_provider, expected):
+    doc = {"provider": provider, "modelProvider": model_provider}
+    assert ec.derive_source(doc, EMPTY_TRACKING) == expected
+
+
+def test_tracking_source_overrides_rules():
+    tracking = {**EMPTY_TRACKING, "source": "Cohere"}
+    assert ec.derive_source({"provider": "nim"}, tracking) == "Cohere"
+
+
+def test_model_row(repo):
+    path = repo.write(
+        "models/v1/ministral-3-8b.yaml",
+        "name: Ministral 3 8B Instruct (FP8)\n"
+        "provider: huggingface\n"
+        "modelProvider: Mistral\n"
+        "modelId: mistralai/Ministral-3-8B\n"
+        "tracking:\n  status: live\n  endDate: 2026-09-10\n",
+    )
+    repo.commit("add", "2026-08-19")
+
+    assert ec.model_row(repo.root, path) == {
+        "id": "ministral-3-8b",
+        "source": "Mistral AI",
+        "type": "Model",
+        "name": "Ministral 3 8B Instruct (FP8)",
+        "start_date": "2026-08-19",
+        "end_date": "2026-09-10",
+        "status": "live",
+        "status_note": None,
+        "model_provider": "Mistral",
+        "provider": "huggingface",
+        "model_id": "mistralai/Ministral-3-8B",
+        "file_path": "models/v1/ministral-3-8b.yaml",
+        "last_updated": "2026-08-19",
+    }
+
+
+def test_model_row_requires_name(repo):
+    path = repo.write("models/v1/noname.yaml", "provider: nim\n")
+    repo.commit("add", "2026-01-01")
+    with pytest.raises(ec.CatalogError, match="models/v1/noname.yaml: missing name"):
+        ec.model_row(repo.root, path)
+
+
+@pytest.mark.parametrize("text", ["name: [unclosed\n", "- just\n- a list\n"])
+def test_model_row_rejects_invalid_yaml(repo, text):
+    path = repo.write("models/v1/bad.yaml", text)
+    repo.commit("add", "2026-01-01")
+    with pytest.raises(ec.CatalogError, match="models/v1/bad.yaml"):
+        ec.model_row(repo.root, path)
