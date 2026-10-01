@@ -113,7 +113,8 @@ DEFAULT_SOURCE = "HuggingFace (direct)"
 def load_yaml(path: Path, where: str) -> dict:
     try:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
+    # ValueError: PyYAML builds dates eagerly, so `2026-02-30` fails here, not as YAMLError.
+    except (yaml.YAMLError, ValueError, UnicodeDecodeError, OSError) as exc:
         raise CatalogError(f"{where}: invalid YAML: {exc}") from exc
     if not isinstance(doc, dict):
         raise CatalogError(f"{where}: expected a mapping at the top level")
@@ -135,6 +136,43 @@ def _rel(repo: Path, path: Path) -> str:
     return path.relative_to(repo).as_posix()
 
 
+def _identity(doc) -> str | None:
+    if not isinstance(doc, dict):
+        return None
+    return _optional_str(doc.get("modelId")) or _optional_str(doc.get("name"))
+
+
+def _identity_at(repo: Path, rev: str, rel_path: str) -> str | None:
+    try:
+        return _identity(yaml.safe_load(_git(repo, "show", f"{rev}:{rel_path}")))
+    except (CatalogError, yaml.YAMLError, ValueError):
+        return None
+
+
+def model_start_date(repo: Path, rel_path: str, identity: str | None) -> str | None:
+    """First-added date, following renames only while the model stayed the same.
+
+    git's rename detection is a similarity guess: deleting one model and adding a
+    near-identical variant in one commit looks like a rename. A rename whose old file
+    had a different modelId (or name) counts as the new model being added.
+    """
+    log = _git(
+        repo, "log", "--follow", "--format=@%H %ad", "--date=short", "--name-status",
+        "--", rel_path,
+    )
+    sha = date = start = None
+    for line in log.splitlines():
+        if line.startswith("@"):
+            sha, date = line[1:].split(" ", 1)
+            continue
+        status, *paths = line.split("\t")
+        if status.startswith("R") and _identity_at(repo, f"{sha}^", paths[0]) != identity:
+            return date
+        if status == "A":
+            start = date
+    return start
+
+
 def model_row(repo: Path, path: Path) -> dict:
     rel = _rel(repo, path)
     doc = load_yaml(path, rel)
@@ -147,7 +185,7 @@ def model_row(repo: Path, path: Path) -> dict:
         "source": derive_source(doc, tracking),
         "type": "Model",
         "name": name,
-        "start_date": first_added_date(repo, rel, follow=True),
+        "start_date": model_start_date(repo, rel, _identity(doc)),
         "end_date": tracking["end_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
@@ -197,6 +235,17 @@ APPS_DIR = "apps/v1"
 SCHEMA_VERSION = 1
 
 
+def _ensure_unique_ids(rows: list[dict]) -> None:
+    """`id` is the consumer's key; two files with one id would silently overwrite each other."""
+    seen: dict[str, str] = {}
+    for row in rows:
+        if row["id"] in seen:
+            raise CatalogError(
+                f"duplicate id {row['id']!r}: {seen[row['id']]} and {row['file_path']}"
+            )
+        seen[row["id"]] = row["file_path"]
+
+
 def build_snapshot(repo: Path) -> tuple[list[dict], list[dict]]:
     """Every model and app row, sorted by id. Raises CatalogError on any bad file."""
     ensure_full_history(repo)
@@ -208,6 +257,7 @@ def build_snapshot(repo: Path) -> tuple[list[dict], list[dict]]:
         p for p in models_dir.rglob("*") if p.is_file() and p.suffix.lower() in (".yaml", ".yml")
     )
     models = sorted((model_row(repo, p) for p in model_files), key=lambda row: row["id"])
+    _ensure_unique_ids(models)
     apps_dir = repo / APPS_DIR
     app_dirs = sorted(p for p in apps_dir.iterdir() if p.is_dir()) if apps_dir.is_dir() else []
     apps = sorted((app_row(repo, d) for d in app_dirs), key=lambda row: row["id"])

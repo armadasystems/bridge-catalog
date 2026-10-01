@@ -322,3 +322,53 @@ def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
     assert "models/v1/broken.yaml" in capsys.readouterr().err
     assert (out / "models.jsonl").read_text(encoding="utf-8") == "previous\n"
     assert not (out / "manifest.json").exists()
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        b"name: x\ntracking:\n  endDate: 2026-02-30\n",  # YAML date that cannot exist
+        b"name: \xff\xfe broken\n",  # not UTF-8
+    ],
+)
+def test_model_row_unreadable_file_names_the_file(repo, content):
+    path = repo.root / "models/v1/odd.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(content)
+    repo.commit("add", "2026-01-01")
+    with pytest.raises(ec.CatalogError, match="models/v1/odd.yaml"):
+        ec.model_row(repo.root, path)
+
+
+@pytest.mark.parametrize("other", ["models/v1/a.yml", "models/v1/sub/a.yaml"])
+def test_build_snapshot_rejects_duplicate_ids(repo, other):
+    repo.write("models/v1/a.yaml", MODEL_TEXT)
+    repo.write(other, MODEL_TEXT)
+    repo.commit("add", "2026-01-01")
+    with pytest.raises(ec.CatalogError, match="duplicate id 'a'") as info:
+        ec.build_snapshot(repo.root)
+    assert "models/v1/a.yaml" in str(info.value) and other in str(info.value)
+
+
+VARIANT_BODY = "".join(f"config{i}: value-{i}\n" for i in range(30))
+
+
+def test_start_date_ignores_rename_from_a_different_model(repo):
+    repo.write("models/v1/llama3-8b.yaml", "name: Llama 3 8B\nmodelId: meta/llama-3-8b\n" + VARIANT_BODY)
+    repo.commit("add llama3", "2024-01-01")
+    repo.run("rm", "-q", "models/v1/llama3-8b.yaml")
+    path = repo.write("models/v1/llama3_1-8b.yaml", "name: Llama 3.1 8B\nmodelId: meta/llama-3.1-8b\n" + VARIANT_BODY)
+    repo.commit("replace with llama3.1", "2026-06-01")
+    # git's similarity guess calls this a rename...
+    assert ec.first_added_date(repo.root, "models/v1/llama3_1-8b.yaml", follow=True) == "2024-01-01"
+    # ...but it is a different model, so it starts when it was added.
+    assert ec.model_row(repo.root, path)["start_date"] == "2026-06-01"
+
+
+def test_start_date_keeps_rename_of_the_same_model(repo):
+    repo.write("models/v1/qwen2-5B.yaml", "name: Qwen2.5 1.5B\nmodelId: Qwen/Qwen2.5-1.5B\n" + VARIANT_BODY)
+    repo.commit("add qwen", "2025-07-29")
+    repo.run("mv", "models/v1/qwen2-5B.yaml", "models/v1/qwen2.5-1.5B.yaml")
+    repo.commit("fix file name", "2025-11-28")
+    path = repo.root / "models/v1/qwen2.5-1.5B.yaml"
+    assert ec.model_row(repo.root, path)["start_date"] == "2025-07-29"
