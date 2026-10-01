@@ -2,6 +2,7 @@
 """Export bridge-catalog models and apps as a snapshot for the Pulse dashboard."""
 from __future__ import annotations
 
+import datetime as dt
 import subprocess
 from pathlib import Path
 
@@ -38,3 +39,56 @@ def first_added_date(repo: Path, rel_path: str, follow: bool) -> str | None:
 
 def last_updated_date(repo: Path, rel_path: str) -> str | None:
     return _git(repo, "log", "-1", "--format=%ad", "--date=short", "--", rel_path) or None
+
+
+STATUSES = ("in-progress", "live", "deprecated")
+TRACKING_KEYS = ("status", "endDate", "note", "source", "partner", "type")
+
+
+def _optional_str(value) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _iso_date(value, where: str) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, dt.datetime):
+        return value.date().isoformat()
+    if isinstance(value, dt.date):
+        return value.isoformat()
+    if isinstance(value, str):
+        try:
+            return dt.date.fromisoformat(value.strip()).isoformat()
+        except ValueError:
+            pass
+    raise CatalogError(f"{where}: tracking.endDate must be a YYYY-MM-DD date, got {value!r}")
+
+
+def parse_tracking(doc: dict, where: str) -> dict:
+    """Validate the optional `tracking:` block and return it with normalised values."""
+    raw = doc.get("tracking")
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise CatalogError(f"{where}: tracking must be a mapping")
+    unknown = sorted(str(key) for key in raw if key not in TRACKING_KEYS)
+    if unknown:
+        raise CatalogError(
+            f"{where}: unknown tracking keys {unknown}; allowed: {list(TRACKING_KEYS)}"
+        )
+    status = _optional_str(raw.get("status"))
+    if status is not None and status not in STATUSES:
+        raise CatalogError(
+            f"{where}: tracking.status must be one of {list(STATUSES)}, got {status!r}"
+        )
+    return {
+        "status": status,
+        "end_date": _iso_date(raw.get("endDate"), where),
+        "note": _optional_str(raw.get("note")),
+        "source": _optional_str(raw.get("source")),
+        "partner": _optional_str(raw.get("partner")),
+        "type": _optional_str(raw.get("type")),
+    }

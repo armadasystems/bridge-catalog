@@ -1,6 +1,8 @@
+import datetime as dt
 import subprocess
 
 import pytest
+import yaml
 
 import export_catalog as ec
 
@@ -59,3 +61,56 @@ def test_shallow_clone_is_rejected(repo, tmp_path):
     ec.ensure_full_history(repo.root)  # full repo: no error
     with pytest.raises(ec.CatalogError, match="fetch-depth: 0"):
         ec.ensure_full_history(shallow)
+
+
+EMPTY_TRACKING = {
+    "status": None, "end_date": None, "note": None,
+    "source": None, "partner": None, "type": None,
+}
+
+
+def test_tracking_missing_or_null_gives_defaults():
+    assert ec.parse_tracking({"name": "x"}, "f.yaml") == EMPTY_TRACKING
+    assert ec.parse_tracking(yaml.safe_load("name: x\ntracking:\n"), "f.yaml") == EMPTY_TRACKING
+
+
+def test_tracking_full_block():
+    doc = yaml.safe_load(
+        "tracking:\n"
+        "  status: in-progress\n"
+        "  endDate: 2026-09-10\n"
+        "  note: ' needs ray-llm '\n"
+        "  source: Cohere\n"
+        "  partner: SecurIn\n"
+        "  type: API\n"
+    )
+    assert ec.parse_tracking(doc, "f.yaml") == {
+        "status": "in-progress", "end_date": "2026-09-10", "note": "needs ray-llm",
+        "source": "Cohere", "partner": "SecurIn", "type": "API",
+    }
+
+
+@pytest.mark.parametrize("raw", ["endDate: 2026-09-10", "endDate: '2026-09-10'"])
+def test_end_date_accepts_yaml_date_and_string(raw):
+    doc = yaml.safe_load(f"tracking:\n  {raw}\n")
+    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+
+
+def test_end_date_accepts_datetime():
+    doc = {"tracking": {"endDate": dt.datetime(2026, 9, 10, 8, 30)}}
+    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+
+
+@pytest.mark.parametrize(
+    "block, message",
+    [
+        ("tracking:\n  status: done\n", "tracking.status"),
+        ("tracking:\n  endDate: 10/09/2026\n", "tracking.endDate"),
+        ("tracking:\n  satus: live\n", "unknown tracking keys"),
+        ("tracking: live\n", "must be a mapping"),
+    ],
+)
+def test_tracking_rejects_bad_values(block, message):
+    with pytest.raises(ec.CatalogError, match=message) as info:
+        ec.parse_tracking(yaml.safe_load(block), "models/v1/x.yaml")
+    assert "models/v1/x.yaml" in str(info.value)
