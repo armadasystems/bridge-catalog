@@ -1,0 +1,43 @@
+name: Catalog snapshot
+
+# Publishes models/apps as an artifact for the Pulse (StarRocks/Omni) dashboard.
+# The data team pulls the newest `bridge-catalog-snapshot` artifact from a staging run.
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # git history is needed for start dates
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Test exporter
+        run: python -m pytest scripts/tests -q
+
+      - name: Export snapshot
+        run: python scripts/export_catalog.py --repo . --out out
+
+      - name: Upload snapshot
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bridge-catalog-snapshot
+          path: out/
+          retention-days: 90
+          if-no-files-found: error
