@@ -152,3 +152,36 @@ def model_row(repo: Path, path: Path) -> dict:
         "file_path": rel,
         "last_updated": last_updated_date(repo, rel),
     }
+
+
+def app_row(repo: Path, app_dir: Path) -> dict:
+    rel_dir = _rel(repo, app_dir)
+    rel = f"{rel_dir}/app.yaml"
+    app_yaml = app_dir / "app.yaml"
+    if not app_yaml.is_file():
+        raise CatalogError(f"{rel}: missing")
+    doc = load_yaml(app_yaml, rel)
+    name = _optional_str(doc.get("displayName")) or _optional_str(doc.get("name"))
+    if not name:
+        raise CatalogError(f"{rel}: missing displayName")
+    tracking = parse_tracking(doc, rel)
+    versions_dir = app_dir / "versions"
+    versions = (
+        sorted(p.name for p in versions_dir.iterdir() if p.is_dir())
+        if versions_dir.is_dir()
+        else []
+    )
+    return {
+        "id": app_dir.name,
+        "partner": tracking["partner"] or name,
+        "type": tracking["type"] or "App",
+        "name": name,
+        "start_date": first_added_date(repo, rel_dir, follow=False),
+        "end_date": tracking["end_date"],
+        "status": tracking["status"],
+        "status_note": tracking["note"],
+        "category": _optional_str(doc.get("category")),
+        "versions": versions,
+        "file_path": rel,
+        "last_updated": last_updated_date(repo, rel_dir),
+    }

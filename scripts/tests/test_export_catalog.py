@@ -180,3 +180,55 @@ def test_model_row_rejects_invalid_yaml(repo, text):
     repo.commit("add", "2026-01-01")
     with pytest.raises(ec.CatalogError, match="models/v1/bad.yaml"):
         ec.model_row(repo.root, path)
+
+
+APP_TEXT = 'name: "openwebui"\ndisplayName: "Open WebUI"\ncategory: "AI"\n'
+
+
+def test_app_row_defaults(repo):
+    repo.write("apps/v1/openwebui/app.yaml", APP_TEXT)
+    repo.write("apps/v1/openwebui/versions/0.6.18/values.yaml", "a: 1\n")
+    repo.commit("add app", "2025-08-06")
+    repo.write("apps/v1/openwebui/versions/0.3.8/values.yaml", "a: 1\n")
+    repo.commit("add version", "2026-06-30")
+
+    assert ec.app_row(repo.root, repo.root / "apps/v1/openwebui") == {
+        "id": "openwebui",
+        "partner": "Open WebUI",
+        "type": "App",
+        "name": "Open WebUI",
+        "start_date": "2025-08-06",
+        "end_date": None,
+        "status": None,
+        "status_note": None,
+        "category": "AI",
+        "versions": ["0.3.8", "0.6.18"],
+        "file_path": "apps/v1/openwebui/app.yaml",
+        "last_updated": "2026-06-30",
+    }
+
+
+def test_app_row_tracking_overrides(repo):
+    repo.write(
+        "apps/v1/securin/app.yaml",
+        'displayName: "Securin Model Security Scan"\n'
+        "tracking:\n  partner: SecurIn\n  type: API\n  status: live\n",
+    )
+    repo.commit("add", "2026-06-16")
+    row = ec.app_row(repo.root, repo.root / "apps/v1/securin")
+    assert (row["partner"], row["type"], row["status"], row["versions"]) == (
+        "SecurIn", "API", "live", []
+    )
+
+
+def test_app_row_falls_back_to_name(repo):
+    repo.write("apps/v1/nginx/app.yaml", 'name: "nginx"\n')
+    repo.commit("add", "2025-07-29")
+    assert ec.app_row(repo.root, repo.root / "apps/v1/nginx")["name"] == "nginx"
+
+
+def test_app_row_requires_app_yaml(repo):
+    repo.write("apps/v1/empty/versions/1/values.yaml", "a: 1\n")
+    repo.commit("add", "2025-07-29")
+    with pytest.raises(ec.CatalogError, match="apps/v1/empty/app.yaml: missing"):
+        ec.app_row(repo.root, repo.root / "apps/v1/empty")
