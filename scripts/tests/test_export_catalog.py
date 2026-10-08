@@ -1,7 +1,8 @@
 import datetime as dt
-import json
 import subprocess
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 import yaml
 
@@ -293,22 +294,74 @@ def test_manifest_local_run(repo):
     assert manifest["branch"] == "staging"
 
 
-def test_main_writes_snapshot(repo, tmp_path, monkeypatch):
-    seed_catalog(repo)
+EXPECTED_COLUMNS = [
+    ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
+    ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
+    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
+    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
+    ("category", pa.string()), ("versions", pa.list_(pa.string())),
+    ("file_path", pa.string()), ("last_updated", pa.date32()),
+    ("snapshot_id", pa.string()), ("commit_sha", pa.string()), ("branch", pa.string()),
+    ("generated_at", pa.timestamp("ms", tz="UTC")), ("schema_version", pa.int32()),
+]
+
+
+def _run_main(repo, tmp_path, monkeypatch):
     monkeypatch.setenv("GITHUB_RUN_ID", "99")
-    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)  # set when CI runs the tests
+    # Set when CI runs the tests; the branch must come from the test repo instead.
+    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
     out = tmp_path / "out"
-
     assert ec.main(["--repo", str(repo.root), "--out", str(out)]) == 0
+    return out
 
-    lines = (out / "models.jsonl").read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 3
-    assert "ünïcode" in lines[0]  # written as UTF-8, not \u escapes
-    assert json.loads(lines[0])["start_date"] == "2025-07-29"
-    assert len((out / "apps.jsonl").read_text(encoding="utf-8").splitlines()) == 1
-    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["snapshot_id"] == "99-1"
-    assert (manifest["model_count"], manifest["app_count"]) == (3, 1)
+
+def test_main_writes_single_parquet_file(repo, tmp_path, monkeypatch):
+    seed_catalog(repo)
+    out = _run_main(repo, tmp_path, monkeypatch)
+
+    assert sorted(p.name for p in out.iterdir()) == ["bridge_catalog_snapshot.parquet"]
+    table = pq.read_table(out / "bridge_catalog_snapshot.parquet")
+    assert [(f.name, f.type) for f in table.schema] == EXPECTED_COLUMNS
+    assert table.num_rows == 4
+
+
+def test_parquet_rows_fill_columns_per_entity_type(repo, tmp_path, monkeypatch):
+    seed_catalog(repo)
+    out = _run_main(repo, tmp_path, monkeypatch)
+    rows = pq.read_table(out / "bridge_catalog_snapshot.parquet").to_pylist()
+
+    assert [(r["entity_type"], r["id"]) for r in rows] == [
+        ("Model", "a-qwen"), ("Model", "mistral-7B"),
+        ("Model", "mistral-7b-instruct-v03-nim"), ("App", "mlflow"),
+    ]
+    model, app = rows[0], rows[3]
+    assert model["name"] == "Qwen2.5 1.5B Instruct – ünïcode"
+    assert (model["source"], model["partner"], model["versions"]) == ("HuggingFace (direct)", None, None)
+    assert model["start_date"] == dt.date(2025, 7, 29)
+    assert (app["partner"], app["source"], app["category"]) == ("MLflow", None, "MLOps")
+    assert app["model_provider"] is None
+
+
+def test_parquet_snapshot_columns_repeat_on_every_row(repo, tmp_path, monkeypatch):
+    seed_catalog(repo)
+    out = _run_main(repo, tmp_path, monkeypatch)
+    rows = pq.read_table(out / "bridge_catalog_snapshot.parquet").to_pylist()
+
+    snapshot = {(r["snapshot_id"], r["commit_sha"], r["branch"], r["generated_at"], r["schema_version"]) for r in rows}
+    assert len(snapshot) == 1
+    snapshot_id, sha, branch, generated_at, version = snapshot.pop()
+    assert (snapshot_id, branch, version, len(sha)) == ("99-1", "staging", 1, 40)
+    assert generated_at.tzinfo is not None
+
+
+def test_build_table_keeps_schema_without_apps():
+    manifest = {"snapshot_id": "1-1", "commit_sha": "a" * 40, "branch": "staging",
+                "generated_at": "2026-10-01T10:00:00Z", "schema_version": 1}
+    table = ec.build_table([], [], manifest)
+    assert [(f.name, f.type) for f in table.schema] == EXPECTED_COLUMNS
+    assert table.num_rows == 0
 
 
 def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
@@ -317,13 +370,12 @@ def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
     repo.commit("break", "2026-01-01")
     out = tmp_path / "out"
     out.mkdir()
-    (out / "models.jsonl").write_text("previous\n", encoding="utf-8")
+    (out / "bridge_catalog_snapshot.parquet").write_bytes(b"previous")
 
     assert ec.main(["--repo", str(repo.root), "--out", str(out)]) == 1
 
     assert "models/v1/broken.yaml" in capsys.readouterr().err
-    assert (out / "models.jsonl").read_text(encoding="utf-8") == "previous\n"
-    assert not (out / "manifest.json").exists()
+    assert (out / "bridge_catalog_snapshot.parquet").read_bytes() == b"previous"
 
 
 @pytest.mark.parametrize(
