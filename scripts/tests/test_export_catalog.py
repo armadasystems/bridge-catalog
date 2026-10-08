@@ -309,7 +309,9 @@ EXPECTED_COLUMNS = [
 
 def _run_main(repo, tmp_path, monkeypatch):
     monkeypatch.setenv("GITHUB_RUN_ID", "99")
-    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)  # set when CI runs the tests
+    # Set when CI runs the tests; the branch must come from the test repo instead.
+    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
     out = tmp_path / "out"
     assert ec.main(["--repo", str(repo.root), "--out", str(out)]) == 0
     return out
