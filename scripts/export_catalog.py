@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import json
 import os
 import subprocess
 import sys
 from collections.abc import Mapping
 from pathlib import Path
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import yaml
 
 
@@ -299,17 +300,43 @@ def build_manifest(
     }
 
 
-def _write_jsonl(path: Path, rows: list[dict]) -> None:
-    with path.open("w", encoding="utf-8") as fh:
-        for row in rows:
-            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"
+
+# One row per model/app. Column order and types are the contract with the data team.
+SNAPSHOT_SCHEMA = pa.schema([
+    ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
+    ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
+    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
+    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
+    ("category", pa.string()), ("versions", pa.list_(pa.string())),
+    ("file_path", pa.string()), ("last_updated", pa.date32()),
+    ("snapshot_id", pa.string()), ("commit_sha", pa.string()), ("branch", pa.string()),
+    ("generated_at", pa.timestamp("ms", tz="UTC")), ("schema_version", pa.int32()),
+])
+DATE_COLUMNS = ("start_date", "first_commit_date", "end_date", "last_updated")
+SNAPSHOT_COLUMNS = ("snapshot_id", "commit_sha", "branch", "schema_version")
+
+
+def build_table(models: list[dict], apps: list[dict], manifest: dict) -> pa.Table:
+    """Models then apps, each row carrying the snapshot info; columns a row lacks are null."""
+    snapshot = {key: manifest[key] for key in SNAPSHOT_COLUMNS}
+    snapshot["generated_at"] = dt.datetime.fromisoformat(manifest["generated_at"])
+    rows = []
+    for entity_type, items in (("Model", models), ("App", apps)):
+        for item in items:
+            row = {name: item.get(name) for name in SNAPSHOT_SCHEMA.names}
+            row.update(snapshot, entity_type=entity_type)
+            for column in DATE_COLUMNS:
+                if row[column] is not None:
+                    row[column] = dt.date.fromisoformat(row[column])
+            rows.append(row)
+    return pa.Table.from_pylist(rows, schema=SNAPSHOT_SCHEMA)
 
 
 def write_snapshot(out_dir: Path, models: list[dict], apps: list[dict], manifest: dict) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    _write_jsonl(out_dir / "models.jsonl", models)
-    _write_jsonl(out_dir / "apps.jsonl", apps)
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    pq.write_table(build_table(models, apps, manifest), out_dir / SNAPSHOT_FILE)
 
 
 def main(argv: list[str] | None = None) -> int:
