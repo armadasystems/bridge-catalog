@@ -14,3 +14,27 @@ This repository serves as a central hub for managing and deploying applications 
 - [KAI Scheduler](kai-scheduler/README.md)
 
 
+
+## Catalog snapshot (Pulse dashboard)
+
+Every merge to `staging` runs `.github/workflows/catalog-snapshot.yml`, which exports all
+models (`models/v1`) and apps (`apps/v1`) to a GitHub Actions artifact named
+`bridge-catalog-snapshot` (`models.jsonl`, `apps.jsonl`, `manifest.json`). The data team loads
+it into StarRocks for the Pulse/Omni dashboard. Dates come from git automatically:
+`start_date` is when the model/app was merged into `staging`, `first_commit_date` is when its
+YAML was first committed (on any branch).
+
+Optional `tracking` block, for the dashboard only (Bridge ignores it):
+
+```yaml
+tracking:
+  status: live          # in-progress | live | deprecated
+  endDate: 2026-09-10   # date the integration went live / ended
+  note: "needs ray-llm w/ vLLM 0.28.0"
+  # rarely needed overrides
+  source: "Mistral AI"  # models: Source column
+  partner: "SecurIn"    # apps: Partner column (default: displayName)
+  type: "API"           # apps: Type column (default: App)
+```
+
+Run locally: `pip install -r scripts/requirements.txt && python scripts/export_catalog.py --out out`.
