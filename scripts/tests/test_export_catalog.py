@@ -507,6 +507,7 @@ def test_load_partners_normalises_entries(ui_repo):
     ([_partner(type="Service")], r"\(clearml\).*type"),
     ([_partner(liveDate="08/06/2026")], r"\(clearml\).*liveDate"),
     ([_partner(), _partner()], r"duplicate id 'clearml'"),
+    ([_partner(id="Clear_ML")], r"\(Clear_ML\).*id must"),
     ({"id": "clearml"}, "expected a JSON array"),
 ])
 def test_load_partners_rejects_bad_entries(ui_repo, entries, message):
@@ -560,14 +561,14 @@ def test_partner_dates_from_git_ignore_formatting(ui_repo):
     _write_partners(ui_repo, [_partner(id="other", name="Other")], const_ids=("other",))
     ui_repo.commit("first partner", "2026-01-01")
     ui_repo.run("checkout", "-q", "-b", "feat")
-    entries = [_partner(id="other", name="Other"), _partner(id="dataiku", name="Dataiku")]
+    entries = [_partner(id="other", name="Other"), _partner(id="nvidia-runai", name="Nvidia Run:ai")]
     ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, separators=(",", ":")))  # compact
     ui_repo.commit("add dataiku", "2026-08-14")
     ui_repo.run("checkout", "-q", "staging")
     ui_repo.merge("feat", "2026-08-27")
     ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")  # reformatted
     ui_repo.commit("reformat", "2026-09-01")
-    assert ec.partner_dates(ui_repo.root, "dataiku") == ("2026-08-14", "2026-08-27")
+    assert ec.partner_dates(ui_repo.root, "nvidia-runai") == ("2026-08-14", "2026-08-27")
 
 
 def test_merge_adds_dashboard_partners_and_skips_hidden(repo, ui_repo):

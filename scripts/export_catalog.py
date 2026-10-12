@@ -312,6 +312,7 @@ PARTNER_KEYS = (
     "id", "name", "onDashboard", "appName", "type", "status", "startDate", "liveDate", "note",
 )
 PARTNER_TYPES = ("App", "API")
+_PARTNER_ID = re.compile(r"[a-z0-9-]+")
 _CONST_ID = re.compile(r"\bid:\s*'([a-z0-9-]+)'")
 
 
@@ -336,6 +337,9 @@ def load_partners(ui_repo: Path) -> list[dict]:
         for key in ("id", "name"):
             if not _optional_str(raw.get(key)):
                 raise CatalogError(f"{at}: missing {key}")
+        # Ids go into a git -G (POSIX) regex unescaped, so keep them to this safe set.
+        if not _PARTNER_ID.fullmatch(pid):
+            raise CatalogError(f"{at}: id must use only lowercase letters, digits and '-'")
         if not isinstance(raw.get("onDashboard"), bool):
             raise CatalogError(f"{at}: onDashboard must be true or false")
         if pid in seen:
@@ -385,7 +389,7 @@ def drift_warnings(partners: list[dict], const_ids: list[str]) -> list[str]:
 
 def _entry_added_date(ui_repo: Path, partner_id: str, on_branch: bool) -> str | None:
     # -G (regex on changed lines) rather than -S: survives reformatting of the JSON.
-    pattern = f'"id"[[:space:]]*:[[:space:]]*"{re.escape(partner_id)}"'
+    pattern = f'"id"[[:space:]]*:[[:space:]]*"{partner_id}"'
     log = _git(
         ui_repo, "log", f"-G{pattern}", *_history_args(on_branch), "--date=short",
         "--name-only", "--", PARTNERS_FILE,
