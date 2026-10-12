@@ -25,3 +25,7 @@ dType: []
 config:
   supportedGpuTypes: ["NVIDIA-L4", "H100-SXM-80GB"]
   maxPositionEmbeddings: 131072
+
+tracking:
+  status: live
+  liveDate: 2025-10-22
