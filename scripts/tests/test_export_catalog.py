@@ -607,3 +607,47 @@ def test_catalog_app_with_hidden_partner_entry_stays(repo, ui_repo):
     merged = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)
     assert [(r["id"], r["partner"], r["is_partner"]) for r in merged] == [
         ("unsloth-studio", "Unsloth Studio (Beta)", True)]
+
+
+def _run_main_with(repo, tmp_path, monkeypatch, *extra):
+    monkeypatch.setenv("GITHUB_RUN_ID", "99")
+    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+    out = tmp_path / "out"
+    assert ec.main(["--repo", str(repo.root), "--out", str(out), *extra]) == 0
+    return pq.read_table(out / "bridge_catalog_snapshot.parquet").to_pylist()
+
+
+def test_main_includes_partners_and_prints_drift(repo, ui_repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    _write_partners(ui_repo, [_partner(type="API")], const_ids=("clearml", "katonic"))
+    ui_repo.commit("partners", "2026-05-06")
+    rows = _run_main_with(repo, tmp_path, monkeypatch, "--partners-repo", str(ui_repo.root))
+    apps = [(r["id"], r["type"], r["is_partner"]) for r in rows if r["entity_type"] == "App"]
+    assert apps == [("clearml", "API", True), ("mlflow", "App", False)]
+    assert "::warning::partner 'katonic'" in capsys.readouterr().out
+
+
+def test_main_without_partner_file_warns_and_exports(repo, ui_repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    ui_repo.write("README.md", "ui\n")
+    ui_repo.commit("init", "2026-01-01")
+    rows = _run_main_with(repo, tmp_path, monkeypatch, "--partners-repo", str(ui_repo.root))
+    assert [r["id"] for r in rows if r["entity_type"] == "App"] == ["mlflow"]
+    assert f"::warning::{ec.PARTNERS_FILE} not found" in capsys.readouterr().out
+
+
+def test_main_without_partners_repo_warns(repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    _run_main_with(repo, tmp_path, monkeypatch)
+    assert "::warning::--partners-repo not given" in capsys.readouterr().out
+
+
+def test_main_bad_partner_file_fails_without_writing(repo, ui_repo, tmp_path, capsys):
+    seed_catalog(repo)
+    _write_partners(ui_repo, [_partner(status="done")])
+    ui_repo.commit("partners", "2026-05-06")
+    out = tmp_path / "out"
+    assert ec.main(["--repo", str(repo.root), "--out", str(out), "--partners-repo", str(ui_repo.root)]) == 1
+    assert "(clearml)" in capsys.readouterr().err
+    assert not out.exists()

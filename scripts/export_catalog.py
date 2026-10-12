@@ -448,6 +448,20 @@ def merge_partner_apps(apps: list[dict], partners: list[dict], ui_repo: Path) ->
     return sorted(rows, key=lambda row: row["id"])
 
 
+def add_partner_apps(ui_repo: Path, apps: list[dict]) -> tuple[list[dict], list[str]]:
+    """Apps merged with bridge-ui partners, plus warnings for the CI log."""
+    ensure_full_history(ui_repo)
+    if not (ui_repo / PARTNERS_FILE).is_file():
+        return apps, [f"{PARTNERS_FILE} not found in {ui_repo}; partner apps are not included"]
+    partners = load_partners(ui_repo)
+    const_ids = const_partner_ids(ui_repo)
+    if const_ids is None:
+        warnings = [f"{PARTNERS_CONST} not found in {ui_repo}; drift not checked"]
+    else:
+        warnings = drift_warnings(partners, const_ids)
+    return merge_partner_apps(apps, partners, ui_repo), warnings
+
+
 SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"
 
 # One row per model/app. Column order and types are the contract with the data team.
@@ -492,15 +506,24 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export the catalog snapshot for Pulse.")
     parser.add_argument("--repo", type=Path, default=Path("."), help="bridge-catalog checkout")
     parser.add_argument("--out", type=Path, default=Path("out"), help="output directory")
+    parser.add_argument(
+        "--partners-repo", type=Path, default=None, help="bridge-ui checkout with partner data"
+    )
     args = parser.parse_args(argv)
     repo = args.repo.resolve()
     try:
         # Build everything before writing so a bad file never leaves partial output.
         models, apps = build_snapshot(repo)
+        if args.partners_repo:
+            apps, warnings = add_partner_apps(args.partners_repo.resolve(), apps)
+        else:
+            warnings = ["--partners-repo not given; partner apps are not included"]
         manifest = build_manifest(repo, models, apps, os.environ, dt.datetime.now(dt.timezone.utc))
     except CatalogError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    for warning in warnings:
+        print(f"::warning::{warning}")
     write_snapshot(args.out, models, apps, manifest)
     print(f"wrote {len(models)} models and {len(apps)} apps to {args.out}")
     return 0
