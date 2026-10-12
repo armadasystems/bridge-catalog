@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import os
+import re
 import subprocess
 import sys
 from collections.abc import Mapping
@@ -302,6 +304,83 @@ def build_manifest(
         "model_count": len(models),
         "app_count": len(apps),
     }
+
+
+PARTNERS_FILE = "src/features/partners/partners.tracking.json"
+PARTNERS_CONST = "src/features/partners/partners.const.ts"
+PARTNER_KEYS = (
+    "id", "name", "onDashboard", "appName", "type", "status", "startDate", "liveDate", "note",
+)
+PARTNER_TYPES = ("App", "API")
+_CONST_ID = re.compile(r"\bid:\s*'([a-z0-9-]+)'")
+
+
+def load_partners(ui_repo: Path) -> list[dict]:
+    """Validated entries of bridge-ui's partners.tracking.json, in file order."""
+    where = f"bridge-ui:{PARTNERS_FILE}"
+    try:
+        data = json.loads((ui_repo / PARTNERS_FILE).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError, OSError) as exc:
+        raise CatalogError(f"{where}: invalid JSON: {exc}") from exc
+    if not isinstance(data, list):
+        raise CatalogError(f"{where}: expected a JSON array")
+    partners, seen = [], set()
+    for index, raw in enumerate(data):
+        if not isinstance(raw, dict):
+            raise CatalogError(f"{where}: entry {index} must be an object")
+        pid = _optional_str(raw.get("id"))
+        at = f"{where} ({pid or f'entry {index}'})"
+        unknown = sorted(str(key) for key in raw if key not in PARTNER_KEYS)
+        if unknown:
+            raise CatalogError(f"{at}: unknown keys {unknown}; allowed: {list(PARTNER_KEYS)}")
+        for key in ("id", "name"):
+            if not _optional_str(raw.get(key)):
+                raise CatalogError(f"{at}: missing {key}")
+        if not isinstance(raw.get("onDashboard"), bool):
+            raise CatalogError(f"{at}: onDashboard must be true or false")
+        if pid in seen:
+            raise CatalogError(f"{where}: duplicate id {pid!r}")
+        seen.add(pid)
+        status = _optional_str(raw.get("status"))
+        if status is not None and status not in STATUSES:
+            raise CatalogError(f"{at}: status must be one of {list(STATUSES)}, got {status!r}")
+        kind = _optional_str(raw.get("type"))
+        if kind is not None and kind not in PARTNER_TYPES:
+            raise CatalogError(f"{at}: type must be one of {list(PARTNER_TYPES)}, got {kind!r}")
+        partners.append({
+            "id": pid,
+            "name": _optional_str(raw.get("name")),
+            "on_dashboard": raw["onDashboard"],
+            "app_name": _optional_str(raw.get("appName")),
+            "type": kind,
+            "status": status,
+            "start_date": _iso_date(raw.get("startDate"), at, "startDate"),
+            "live_date": _iso_date(raw.get("liveDate"), at, "liveDate"),
+            "note": _optional_str(raw.get("note")),
+        })
+    return partners
+
+
+def const_partner_ids(ui_repo: Path) -> list[str] | None:
+    """Partner ids on the Partners page, or None when the const file is missing."""
+    path = ui_repo / PARTNERS_CONST
+    if not path.is_file():
+        return None
+    return _CONST_ID.findall(path.read_text(encoding="utf-8"))
+
+
+def drift_warnings(partners: list[dict], const_ids: list[str]) -> list[str]:
+    json_ids = [p["id"] for p in partners]
+    missing = [
+        f"partner {pid!r} is in {PARTNERS_CONST} but not in {PARTNERS_FILE}; "
+        "it won't reach the dashboard"
+        for pid in const_ids if pid not in json_ids
+    ]
+    stale = [
+        f"partner {pid!r} is in {PARTNERS_FILE} but no longer in {PARTNERS_CONST}"
+        for pid in json_ids if pid not in const_ids
+    ]
+    return missing + stale
 
 
 SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"

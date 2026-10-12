@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import subprocess
 
 import pyarrow as pa
@@ -475,3 +476,61 @@ def test_start_date_uses_landing_date_for_rebased_commits(repo):
     repo.commit("rebase-merged", "2026-08-19", landed="2026-09-17")
     row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
     assert (row["start_date"], row["merged_date"]) == ("2026-08-19", "2026-09-17")
+
+
+def _partner(**overrides):
+    entry = {"id": "clearml", "name": "ClearML", "onDashboard": True}
+    entry.update(overrides)
+    return entry
+
+
+def _write_partners(ui_repo, entries, const_ids=("clearml",)):
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")
+    ui_repo.write(ec.PARTNERS_CONST, "".join(f"  {{ id: '{i}', name: 'x' }},\n" for i in const_ids))
+
+
+def test_load_partners_normalises_entries(ui_repo):
+    _write_partners(ui_repo, [_partner(appName="ClearML AI infrastructure platform", type="App",
+                                       status="live", startDate="2026-05-19", liveDate="2026-08-06")])
+    assert ec.load_partners(ui_repo.root) == [{
+        "id": "clearml", "name": "ClearML", "on_dashboard": True,
+        "app_name": "ClearML AI infrastructure platform", "type": "App", "status": "live",
+        "start_date": "2026-05-19", "live_date": "2026-08-06", "note": None,
+    }]
+
+
+@pytest.mark.parametrize("entries, message", [
+    ([_partner(livedate="2026-08-06")], r"\(clearml\).*unknown keys"),
+    ([_partner(onDashboard="yes")], r"\(clearml\).*onDashboard"),
+    ([{"id": "x", "onDashboard": True}], r"\(x\).*missing name"),
+    ([_partner(status="done")], r"\(clearml\).*status"),
+    ([_partner(type="Service")], r"\(clearml\).*type"),
+    ([_partner(liveDate="08/06/2026")], r"\(clearml\).*liveDate"),
+    ([_partner(), _partner()], r"duplicate id 'clearml'"),
+    ({"id": "clearml"}, "expected a JSON array"),
+])
+def test_load_partners_rejects_bad_entries(ui_repo, entries, message):
+    _write_partners(ui_repo, entries)
+    with pytest.raises(ec.CatalogError, match=message):
+        ec.load_partners(ui_repo.root)
+
+
+def test_load_partners_rejects_invalid_json(ui_repo):
+    ui_repo.write(ec.PARTNERS_FILE, "[{")
+    with pytest.raises(ec.CatalogError, match="invalid JSON"):
+        ec.load_partners(ui_repo.root)
+
+
+def test_drift_warnings_name_both_directions(ui_repo):
+    _write_partners(ui_repo, [_partner(), _partner(id="old", name="Old")], const_ids=("clearml", "dataiku"))
+    partners = ec.load_partners(ui_repo.root)
+    const_ids = ec.const_partner_ids(ui_repo.root)
+    assert const_ids == ["clearml", "dataiku"]
+    warnings = ec.drift_warnings(partners, const_ids)
+    assert len(warnings) == 2
+    assert "'dataiku'" in warnings[0] and ec.PARTNERS_FILE in warnings[0]
+    assert "'old'" in warnings[1] and "no longer" in warnings[1]
+
+
+def test_const_partner_ids_missing_file(ui_repo):
+    assert ec.const_partner_ids(ui_repo.root) is None
