@@ -383,6 +383,71 @@ def drift_warnings(partners: list[dict], const_ids: list[str]) -> list[str]:
     return missing + stale
 
 
+def _entry_added_date(ui_repo: Path, partner_id: str, on_branch: bool) -> str | None:
+    # -G (regex on changed lines) rather than -S: survives reformatting of the JSON.
+    pattern = f'"id"[[:space:]]*:[[:space:]]*"{re.escape(partner_id)}"'
+    log = _git(
+        ui_repo, "log", f"-G{pattern}", *_history_args(on_branch), "--date=short",
+        "--name-only", "--", PARTNERS_FILE,
+    )
+    dates = [line.split(" ", 1)[1] for line in log.splitlines() if line.startswith("@")]
+    return dates[-1] if dates else None
+
+
+def partner_dates(ui_repo: Path, partner_id: str) -> tuple[str | None, str | None]:
+    """(first commit of the partner's entry, merge of it into the checked-out branch)."""
+    return (
+        _entry_added_date(ui_repo, partner_id, on_branch=False),
+        _entry_added_date(ui_repo, partner_id, on_branch=True),
+    )
+
+
+def partner_row(ui_repo: Path, partner: dict) -> dict:
+    first_commit, merged = partner_dates(ui_repo, partner["id"])
+    return {
+        "id": partner["id"],
+        "partner": partner["name"],
+        "type": partner["type"] or "App",
+        "name": partner["app_name"] or partner["name"],
+        # Existing partners predate the tracking file, so their real start is given explicitly.
+        "start_date": partner["start_date"] or first_commit,
+        "merged_date": merged,
+        "live_date": partner["live_date"],
+        "status": partner["status"],
+        "status_note": partner["note"],
+        "category": None,
+        "versions": None,
+        "file_path": f"bridge-ui/{PARTNERS_FILE}",
+        "last_updated": None,
+        "is_partner": True,
+    }
+
+
+def _with_partner(app: dict, partner: dict) -> dict:
+    tracking = app["_tracking"]
+    return {
+        **app,
+        "partner": tracking["partner"] or partner["name"],
+        "name": tracking["app_name"] or partner["app_name"] or app["name"],
+        "type": tracking["type"] or partner["type"] or "App",
+        "status": tracking["status"] or partner["status"],
+        "live_date": tracking["live_date"] or partner["live_date"],
+        "status_note": tracking["note"] or partner["note"],
+        "is_partner": True,
+    }
+
+
+def merge_partner_apps(apps: list[dict], partners: list[dict], ui_repo: Path) -> list[dict]:
+    """Catalog apps (always kept) plus dashboard partners; one row per id."""
+    by_id = {p["id"]: p for p in partners}
+    rows = [_with_partner(app, by_id[app["id"]]) if app["id"] in by_id else app for app in apps]
+    app_ids = {app["id"] for app in apps}
+    rows += [
+        partner_row(ui_repo, p) for p in partners if p["on_dashboard"] and p["id"] not in app_ids
+    ]
+    return sorted(rows, key=lambda row: row["id"])
+
+
 SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"
 
 # One row per model/app. Column order and types are the contract with the data team.

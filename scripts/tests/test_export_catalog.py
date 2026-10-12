@@ -534,3 +534,76 @@ def test_drift_warnings_name_both_directions(ui_repo):
 
 def test_const_partner_ids_missing_file(ui_repo):
     assert ec.const_partner_ids(ui_repo.root) is None
+
+
+def test_partner_row_defaults_and_git_dates(ui_repo):
+    _write_partners(ui_repo, [_partner(type="API", status="live", liveDate="2026-06-29")])
+    ui_repo.commit("add partners", "2026-06-16")
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert ec.partner_row(ui_repo.root, partner) == {
+        "id": "clearml", "partner": "ClearML", "type": "API", "name": "ClearML",
+        "start_date": "2026-06-16", "merged_date": "2026-06-16", "live_date": "2026-06-29",
+        "status": "live", "status_note": None, "category": None, "versions": None,
+        "file_path": f"bridge-ui/{ec.PARTNERS_FILE}", "last_updated": None, "is_partner": True,
+    }
+
+
+def test_partner_start_date_override_wins(ui_repo):
+    _write_partners(ui_repo, [_partner(startDate="2026-05-19", appName="ClearML AI infrastructure platform")])
+    ui_repo.commit("add partners", "2026-10-12")
+    row = ec.partner_row(ui_repo.root, ec.load_partners(ui_repo.root)[0])
+    assert (row["start_date"], row["merged_date"], row["name"]) == (
+        "2026-05-19", "2026-10-12", "ClearML AI infrastructure platform")
+
+
+def test_partner_dates_from_git_ignore_formatting(ui_repo):
+    _write_partners(ui_repo, [_partner(id="other", name="Other")], const_ids=("other",))
+    ui_repo.commit("first partner", "2026-01-01")
+    ui_repo.run("checkout", "-q", "-b", "feat")
+    entries = [_partner(id="other", name="Other"), _partner(id="dataiku", name="Dataiku")]
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, separators=(",", ":")))  # compact
+    ui_repo.commit("add dataiku", "2026-08-14")
+    ui_repo.run("checkout", "-q", "staging")
+    ui_repo.merge("feat", "2026-08-27")
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")  # reformatted
+    ui_repo.commit("reformat", "2026-09-01")
+    assert ec.partner_dates(ui_repo.root, "dataiku") == ("2026-08-14", "2026-08-27")
+
+
+def test_merge_adds_dashboard_partners_and_skips_hidden(repo, ui_repo):
+    repo.write("apps/v1/mlflow/app.yaml", 'displayName: "MLflow"\n')
+    repo.commit("add mlflow", "2025-09-02")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/mlflow")]
+    _write_partners(ui_repo, [_partner(), _partner(id="ltm", name="LTM", onDashboard=False)],
+                    const_ids=("clearml", "ltm"))
+    ui_repo.commit("partners", "2026-05-06")
+    merged = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)
+    assert [(r["id"], r["is_partner"]) for r in merged] == [("clearml", True), ("mlflow", False)]
+
+
+def test_overlap_catalog_tracking_wins_partner_fills_gaps(repo, ui_repo):
+    repo.write("apps/v1/linkervision/app.yaml",
+               'displayName: "Linker Vision Observ"\ntracking:\n  status: in-progress\n')
+    repo.commit("add linkervision", "2026-02-06")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/linkervision")]
+    _write_partners(ui_repo, [_partner(id="linkervision", name="LinkerVision",
+                                       appName="LinkerVision Video Reasoning", status="live",
+                                       liveDate="2026-07-02", startDate="2026-06-02")],
+                    const_ids=("linkervision",))
+    ui_repo.commit("partners", "2026-05-06")
+    row = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)[0]
+    assert (row["partner"], row["name"], row["status"], row["live_date"], row["start_date"],
+            row["is_partner"]) == ("LinkerVision", "LinkerVision Video Reasoning", "in-progress",
+                                   "2026-07-02", "2026-02-06", True)
+
+
+def test_catalog_app_with_hidden_partner_entry_stays(repo, ui_repo):
+    repo.write("apps/v1/unsloth-studio/app.yaml", 'displayName: "Unsloth Studio"\n')
+    repo.commit("add unsloth", "2026-07-21")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/unsloth-studio")]
+    _write_partners(ui_repo, [_partner(id="unsloth-studio", name="Unsloth Studio (Beta)", onDashboard=False)],
+                    const_ids=("unsloth-studio",))
+    ui_repo.commit("partners", "2026-07-30")
+    merged = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)
+    assert [(r["id"], r["partner"], r["is_partner"]) for r in merged] == [
+        ("unsloth-studio", "Unsloth Studio (Beta)", True)]
