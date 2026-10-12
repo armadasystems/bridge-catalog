@@ -66,8 +66,8 @@ def test_shallow_clone_is_rejected(repo, tmp_path):
 
 
 EMPTY_TRACKING = {
-    "status": None, "end_date": None, "note": None,
-    "source": None, "partner": None, "type": None,
+    "status": None, "live_date": None, "note": None,
+    "source": None, "partner": None, "type": None, "app_name": None,
 }
 
 
@@ -80,34 +80,37 @@ def test_tracking_full_block():
     doc = yaml.safe_load(
         "tracking:\n"
         "  status: in-progress\n"
-        "  endDate: 2026-09-10\n"
+        "  liveDate: 2026-09-10\n"
         "  note: ' needs ray-llm '\n"
         "  source: Cohere\n"
         "  partner: SecurIn\n"
         "  type: API\n"
+        "  appName: Securin Model Security Scan\n"
     )
     assert ec.parse_tracking(doc, "f.yaml") == {
-        "status": "in-progress", "end_date": "2026-09-10", "note": "needs ray-llm",
+        "status": "in-progress", "live_date": "2026-09-10", "note": "needs ray-llm",
         "source": "Cohere", "partner": "SecurIn", "type": "API",
+        "app_name": "Securin Model Security Scan",
     }
 
 
-@pytest.mark.parametrize("raw", ["endDate: 2026-09-10", "endDate: '2026-09-10'"])
-def test_end_date_accepts_yaml_date_and_string(raw):
+@pytest.mark.parametrize("raw", ["liveDate: 2026-09-10", "liveDate: '2026-09-10'"])
+def test_live_date_accepts_yaml_date_and_string(raw):
     doc = yaml.safe_load(f"tracking:\n  {raw}\n")
-    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
 
 
-def test_end_date_accepts_datetime():
-    doc = {"tracking": {"endDate": dt.datetime(2026, 9, 10, 8, 30)}}
-    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+def test_live_date_accepts_datetime():
+    doc = {"tracking": {"liveDate": dt.datetime(2026, 9, 10, 8, 30)}}
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
 
 
 @pytest.mark.parametrize(
     "block, message",
     [
         ("tracking:\n  status: done\n", "tracking.status"),
-        ("tracking:\n  endDate: 10/09/2026\n", "tracking.endDate"),
+        ("tracking:\n  liveDate: 10/09/2026\n", "tracking.liveDate"),
+        ("tracking:\n  endDate: 2026-09-10\n", "unknown tracking keys"),  # renamed to liveDate
         ("tracking:\n  satus: live\n", "unknown tracking keys"),
         ("tracking: live\n", "must be a mapping"),
     ],
@@ -148,7 +151,7 @@ def test_model_row(repo):
         "provider: huggingface\n"
         "modelProvider: Mistral\n"
         "modelId: mistralai/Ministral-3-8B\n"
-        "tracking:\n  status: live\n  endDate: 2026-09-10\n",
+        "tracking:\n  status: live\n  liveDate: 2026-09-10\n",
     )
     repo.commit("add", "2026-08-19")
 
@@ -158,8 +161,8 @@ def test_model_row(repo):
         "type": "Model",
         "name": "Ministral 3 8B Instruct (FP8)",
         "start_date": "2026-08-19",
-        "first_commit_date": "2026-08-19",
-        "end_date": "2026-09-10",
+        "merged_date": "2026-08-19",
+        "live_date": "2026-09-10",
         "status": "live",
         "status_note": None,
         "model_provider": "Mistral",
@@ -188,6 +191,10 @@ def test_model_row_rejects_invalid_yaml(repo, text):
 APP_TEXT = 'name: "openwebui"\ndisplayName: "Open WebUI"\ncategory: "AI"\n'
 
 
+def _public(row):
+    return {k: v for k, v in row.items() if k != "_tracking"}
+
+
 def test_app_row_defaults(repo):
     repo.write("apps/v1/openwebui/app.yaml", APP_TEXT)
     repo.write("apps/v1/openwebui/versions/0.6.18/values.yaml", "a: 1\n")
@@ -195,20 +202,21 @@ def test_app_row_defaults(repo):
     repo.write("apps/v1/openwebui/versions/0.3.8/values.yaml", "a: 1\n")
     repo.commit("add version", "2026-06-30")
 
-    assert ec.app_row(repo.root, repo.root / "apps/v1/openwebui") == {
+    assert _public(ec.app_row(repo.root, repo.root / "apps/v1/openwebui")) == {
         "id": "openwebui",
         "partner": "Open WebUI",
         "type": "App",
         "name": "Open WebUI",
         "start_date": "2025-08-06",
-        "first_commit_date": "2025-08-06",
-        "end_date": None,
+        "merged_date": "2025-08-06",
+        "live_date": None,
         "status": None,
         "status_note": None,
         "category": "AI",
         "versions": ["0.3.8", "0.6.18"],
         "file_path": "apps/v1/openwebui/app.yaml",
         "last_updated": "2026-06-30",
+        "is_partner": False,
     }
 
 
@@ -216,12 +224,13 @@ def test_app_row_tracking_overrides(repo):
     repo.write(
         "apps/v1/securin/app.yaml",
         'displayName: "Securin Model Security Scan"\n'
-        "tracking:\n  partner: SecurIn\n  type: API\n  status: live\n",
+        "tracking:\n  partner: SecurIn\n  type: API\n  status: live\n"
+        "  appName: Securin Model Security Scan (API)\n",
     )
     repo.commit("add", "2026-06-16")
     row = ec.app_row(repo.root, repo.root / "apps/v1/securin")
-    assert (row["partner"], row["type"], row["status"], row["versions"]) == (
-        "SecurIn", "API", "live", []
+    assert (row["partner"], row["type"], row["status"], row["versions"], row["name"]) == (
+        "SecurIn", "API", "live", [], "Securin Model Security Scan (API)"
     )
 
 
@@ -277,7 +286,7 @@ def test_manifest_from_github_env(repo):
     manifest = ec.build_manifest(repo.root, models, apps, env, NOW)
     sha = subprocess.run(["git", "-C", str(repo.root), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     assert manifest == {
-        "schema_version": 1,
+        "schema_version": 2,
         "snapshot_id": "123-2",
         "commit_sha": sha,
         "branch": "staging",
@@ -297,8 +306,9 @@ def test_manifest_local_run(repo):
 EXPECTED_COLUMNS = [
     ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
     ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
-    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
-    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("is_partner", pa.bool_()),
+    ("start_date", pa.date32()), ("merged_date", pa.date32()), ("live_date", pa.date32()),
+    ("status", pa.string()), ("status_note", pa.string()),
     ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
     ("category", pa.string()), ("versions", pa.list_(pa.string())),
     ("file_path", pa.string()), ("last_updated", pa.date32()),
@@ -342,6 +352,7 @@ def test_parquet_rows_fill_columns_per_entity_type(repo, tmp_path, monkeypatch):
     assert model["start_date"] == dt.date(2025, 7, 29)
     assert (app["partner"], app["source"], app["category"]) == ("MLflow", None, "MLOps")
     assert app["model_provider"] is None
+    assert (model["is_partner"], app["is_partner"]) == (None, False)
 
 
 def test_parquet_snapshot_columns_repeat_on_every_row(repo, tmp_path, monkeypatch):
@@ -352,13 +363,13 @@ def test_parquet_snapshot_columns_repeat_on_every_row(repo, tmp_path, monkeypatc
     snapshot = {(r["snapshot_id"], r["commit_sha"], r["branch"], r["generated_at"], r["schema_version"]) for r in rows}
     assert len(snapshot) == 1
     snapshot_id, sha, branch, generated_at, version = snapshot.pop()
-    assert (snapshot_id, branch, version, len(sha)) == ("99-1", "staging", 1, 40)
+    assert (snapshot_id, branch, version, len(sha)) == ("99-1", "staging", 2, 40)
     assert generated_at.tzinfo is not None
 
 
 def test_build_table_keeps_schema_without_apps():
     manifest = {"snapshot_id": "1-1", "commit_sha": "a" * 40, "branch": "staging",
-                "generated_at": "2026-10-01T10:00:00Z", "schema_version": 1}
+                "generated_at": "2026-10-01T10:00:00Z", "schema_version": 2}
     table = ec.build_table([], [], manifest)
     assert [(f.name, f.type) for f in table.schema] == EXPECTED_COLUMNS
     assert table.num_rows == 0
@@ -381,7 +392,7 @@ def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
 @pytest.mark.parametrize(
     "content",
     [
-        b"name: x\ntracking:\n  endDate: 2026-02-30\n",  # YAML date that cannot exist
+        b"name: x\ntracking:\n  liveDate: 2026-02-30\n",  # YAML date that cannot exist
         b"name: \xff\xfe broken\n",  # not UTF-8
     ],
 )
@@ -439,16 +450,16 @@ def _merge_feature(repo, rel: str, text: str, authored: str, merged: str) -> Non
     repo.merge("feat", merged)
 
 
-def test_model_start_date_is_merge_into_staging(repo):
+def test_model_merged_date_is_merge_into_staging(repo):
     _merge_feature(repo, "models/v1/m.yaml", MODEL_TEXT, "2026-08-19", "2026-09-17")
     row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
+    assert (row["start_date"], row["merged_date"]) == ("2026-08-19", "2026-09-17")
 
 
-def test_app_start_date_is_merge_into_staging(repo):
+def test_app_merged_date_is_merge_into_staging(repo):
     _merge_feature(repo, "apps/v1/x/app.yaml", APP_TEXT, "2026-02-06", "2026-07-08")
     row = ec.app_row(repo.root, repo.root / "apps/v1/x")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-07-08", "2026-02-06")
+    assert (row["start_date"], row["merged_date"]) == ("2026-02-06", "2026-07-08")
 
 
 def test_start_date_survives_rename_after_merge(repo):
@@ -456,11 +467,11 @@ def test_start_date_survives_rename_after_merge(repo):
     repo.run("mv", "models/v1/llama2-7b.yaml", "models/v1/llama3-8b.yaml")
     repo.commit("fix file name", "2026-06-30")
     row = ec.model_row(repo.root, repo.root / "models/v1/llama3-8b.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2025-07-29", "2025-07-20")
+    assert (row["start_date"], row["merged_date"]) == ("2025-07-20", "2025-07-29")
 
 
 def test_start_date_uses_landing_date_for_rebased_commits(repo):
     repo.write("models/v1/m.yaml", MODEL_TEXT)
     repo.commit("rebase-merged", "2026-08-19", landed="2026-09-17")
     row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
+    assert (row["start_date"], row["merged_date"]) == ("2026-08-19", "2026-09-17")

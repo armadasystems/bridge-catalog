@@ -61,7 +61,7 @@ def last_updated_date(repo: Path, rel_path: str) -> str | None:
 
 
 STATUSES = ("in-progress", "live", "deprecated")
-TRACKING_KEYS = ("status", "endDate", "note", "source", "partner", "type")
+TRACKING_KEYS = ("status", "liveDate", "note", "source", "partner", "type", "appName")
 
 
 def _optional_str(value) -> str | None:
@@ -71,7 +71,7 @@ def _optional_str(value) -> str | None:
     return text or None
 
 
-def _iso_date(value, where: str) -> str | None:
+def _iso_date(value, where: str, field: str) -> str | None:
     if value is None:
         return None
     if isinstance(value, dt.datetime):
@@ -83,7 +83,7 @@ def _iso_date(value, where: str) -> str | None:
             return dt.date.fromisoformat(value.strip()).isoformat()
         except ValueError:
             pass
-    raise CatalogError(f"{where}: tracking.endDate must be a YYYY-MM-DD date, got {value!r}")
+    raise CatalogError(f"{where}: {field} must be a YYYY-MM-DD date, got {value!r}")
 
 
 def parse_tracking(doc: dict, where: str) -> dict:
@@ -105,11 +105,12 @@ def parse_tracking(doc: dict, where: str) -> dict:
         )
     return {
         "status": status,
-        "end_date": _iso_date(raw.get("endDate"), where),
+        "live_date": _iso_date(raw.get("liveDate"), where, "tracking.liveDate"),
         "note": _optional_str(raw.get("note")),
         "source": _optional_str(raw.get("source")),
         "partner": _optional_str(raw.get("partner")),
         "type": _optional_str(raw.get("type")),
+        "app_name": _optional_str(raw.get("appName")),
     }
 
 
@@ -199,9 +200,9 @@ def model_row(repo: Path, path: Path) -> dict:
         "source": derive_source(doc, tracking),
         "type": "Model",
         "name": name,
-        "start_date": model_start_date(repo, rel, _identity(doc), on_branch=True),
-        "first_commit_date": model_start_date(repo, rel, _identity(doc)),
-        "end_date": tracking["end_date"],
+        "start_date": model_start_date(repo, rel, _identity(doc)),
+        "merged_date": model_start_date(repo, rel, _identity(doc), on_branch=True),
+        "live_date": tracking["live_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
         "model_provider": _optional_str(doc.get("modelProvider")),
@@ -233,22 +234,25 @@ def app_row(repo: Path, app_dir: Path) -> dict:
         "id": app_dir.name,
         "partner": tracking["partner"] or name,
         "type": tracking["type"] or "App",
-        "name": name,
-        "start_date": first_added_date(repo, rel_dir, follow=False, on_branch=True),
-        "first_commit_date": first_added_date(repo, rel_dir, follow=False),
-        "end_date": tracking["end_date"],
+        "name": tracking["app_name"] or name,
+        "start_date": first_added_date(repo, rel_dir, follow=False),
+        "merged_date": first_added_date(repo, rel_dir, follow=False, on_branch=True),
+        "live_date": tracking["live_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
         "category": _optional_str(doc.get("category")),
         "versions": versions,
         "file_path": rel,
         "last_updated": last_updated_date(repo, rel_dir),
+        "is_partner": False,
+        # Raw tracking values: partner data may only fill what these leave empty.
+        "_tracking": tracking,
     }
 
 
 MODELS_DIR = "models/v1"
 APPS_DIR = "apps/v1"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def _ensure_unique_ids(rows: list[dict]) -> None:
@@ -306,15 +310,16 @@ SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"
 SNAPSHOT_SCHEMA = pa.schema([
     ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
     ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
-    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
-    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("is_partner", pa.bool_()),
+    ("start_date", pa.date32()), ("merged_date", pa.date32()), ("live_date", pa.date32()),
+    ("status", pa.string()), ("status_note", pa.string()),
     ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
     ("category", pa.string()), ("versions", pa.list_(pa.string())),
     ("file_path", pa.string()), ("last_updated", pa.date32()),
     ("snapshot_id", pa.string()), ("commit_sha", pa.string()), ("branch", pa.string()),
     ("generated_at", pa.timestamp("ms", tz="UTC")), ("schema_version", pa.int32()),
 ])
-DATE_COLUMNS = ("start_date", "first_commit_date", "end_date", "last_updated")
+DATE_COLUMNS = ("start_date", "merged_date", "live_date", "last_updated")
 SNAPSHOT_COLUMNS = ("snapshot_id", "commit_sha", "branch", "schema_version")
 
 

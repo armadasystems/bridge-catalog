@@ -24,20 +24,21 @@ per model or app (`entity_type` = `Model` / `App`), with the snapshot info (`sna
 `commit_sha`, `branch`, `generated_at`, `schema_version`) on every row. Each file is a full
 snapshot. The data team loads it into StarRocks for the Pulse/Omni dashboard. Dates come from
 git automatically:
-`start_date` is when the model/app was merged into `staging`, `first_commit_date` is when its
-YAML was first committed (on any branch).
+`start_date` is when the YAML was first committed (on any branch), `merged_date` is when it was
+merged into `staging`.
 
 Optional `tracking` block, for the dashboard only (Bridge ignores it):
 
 ```yaml
 tracking:
   status: live          # in-progress | live | deprecated
-  endDate: 2026-09-10   # date the integration went live / ended
+  liveDate: 2026-09-10  # date it went live
   note: "needs ray-llm w/ vLLM 0.28.0"
   # rarely needed overrides
   source: "Mistral AI"  # models: Source column
   partner: "SecurIn"    # apps: Partner column (default: displayName)
   type: "API"           # apps: Type column (default: App)
+  appName: "Securin Model Security Scan"  # apps: App Name column (default: displayName)
 ```
 
 Run locally: `pip install -r scripts/requirements.txt && python scripts/export_catalog.py --out out`.
