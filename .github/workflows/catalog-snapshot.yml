@@ -35,8 +35,28 @@ jobs:
       - name: Test exporter
         run: python -m pytest scripts/tests -q
 
+      # Partner apps come from bridge-ui's partners.tracking.json (read with the shared GitHub App).
+      - name: Get token for bridge-ui
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: armadasystems
+          repositories: bridge-ui
+
+      - name: Checkout bridge-ui partner data
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: armadasystems/bridge-ui
+          ref: staging
+          path: bridge-ui
+          token: ${{ steps.app-token.outputs.token }}
+          sparse-checkout: src/features/partners
+          fetch-depth: 0 # partner start dates come from history
+
       - name: Export snapshot
-        run: python scripts/export_catalog.py --repo . --out out
+        run: python scripts/export_catalog.py --repo . --out out --partners-repo bridge-ui
 
       # Re-running an old run checks out an old commit; don't publish it as the newest snapshot.
       - name: Check commit is still the branch tip

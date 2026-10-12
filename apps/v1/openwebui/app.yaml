@@ -15,3 +15,8 @@ versions:
     appVersion: "0.6.18"
     schemaFile: "schema.json"
     valuesFile: "values.yaml"
+
+tracking:
+  status: live
+  liveDate: 2025-08-12
+  partner: "OpenWebUI"
