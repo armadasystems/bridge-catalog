@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 import subprocess
 
 import pyarrow as pa
@@ -66,8 +67,8 @@ def test_shallow_clone_is_rejected(repo, tmp_path):
 
 
 EMPTY_TRACKING = {
-    "status": None, "end_date": None, "note": None,
-    "source": None, "partner": None, "type": None,
+    "status": None, "live_date": None, "note": None,
+    "source": None, "partner": None, "type": None, "app_name": None,
 }
 
 
@@ -80,34 +81,43 @@ def test_tracking_full_block():
     doc = yaml.safe_load(
         "tracking:\n"
         "  status: in-progress\n"
-        "  endDate: 2026-09-10\n"
+        "  liveDate: 2026-09-10\n"
         "  note: ' needs ray-llm '\n"
         "  source: Cohere\n"
         "  partner: SecurIn\n"
         "  type: API\n"
+        "  appName: Securin Model Security Scan\n"
     )
     assert ec.parse_tracking(doc, "f.yaml") == {
-        "status": "in-progress", "end_date": "2026-09-10", "note": "needs ray-llm",
+        "status": "in-progress", "live_date": "2026-09-10", "note": "needs ray-llm",
         "source": "Cohere", "partner": "SecurIn", "type": "API",
+        "app_name": "Securin Model Security Scan",
     }
 
 
-@pytest.mark.parametrize("raw", ["endDate: 2026-09-10", "endDate: '2026-09-10'"])
-def test_end_date_accepts_yaml_date_and_string(raw):
+@pytest.mark.parametrize("raw", ["liveDate: 2026-09-10", "liveDate: '2026-09-10'"])
+def test_live_date_accepts_yaml_date_and_string(raw):
     doc = yaml.safe_load(f"tracking:\n  {raw}\n")
-    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
 
 
-def test_end_date_accepts_datetime():
-    doc = {"tracking": {"endDate": dt.datetime(2026, 9, 10, 8, 30)}}
-    assert ec.parse_tracking(doc, "f.yaml")["end_date"] == "2026-09-10"
+@pytest.mark.parametrize("raw", ["liveDate: ''", "liveDate: '  '"])
+def test_blank_live_date_is_not_set(raw):
+    doc = yaml.safe_load(f"tracking:\n  {raw}\n")
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] is None
+
+
+def test_live_date_accepts_datetime():
+    doc = {"tracking": {"liveDate": dt.datetime(2026, 9, 10, 8, 30)}}
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
 
 
 @pytest.mark.parametrize(
     "block, message",
     [
         ("tracking:\n  status: done\n", "tracking.status"),
-        ("tracking:\n  endDate: 10/09/2026\n", "tracking.endDate"),
+        ("tracking:\n  liveDate: 10/09/2026\n", "tracking.liveDate"),
+        ("tracking:\n  endDate: 2026-09-10\n", "unknown tracking keys"),  # renamed to liveDate
         ("tracking:\n  satus: live\n", "unknown tracking keys"),
         ("tracking: live\n", "must be a mapping"),
     ],
@@ -148,7 +158,7 @@ def test_model_row(repo):
         "provider: huggingface\n"
         "modelProvider: Mistral\n"
         "modelId: mistralai/Ministral-3-8B\n"
-        "tracking:\n  status: live\n  endDate: 2026-09-10\n",
+        "tracking:\n  status: live\n  liveDate: 2026-09-10\n",
     )
     repo.commit("add", "2026-08-19")
 
@@ -158,8 +168,8 @@ def test_model_row(repo):
         "type": "Model",
         "name": "Ministral 3 8B Instruct (FP8)",
         "start_date": "2026-08-19",
-        "first_commit_date": "2026-08-19",
-        "end_date": "2026-09-10",
+        "merged_date": "2026-08-19",
+        "live_date": "2026-09-10",
         "status": "live",
         "status_note": None,
         "model_provider": "Mistral",
@@ -188,6 +198,10 @@ def test_model_row_rejects_invalid_yaml(repo, text):
 APP_TEXT = 'name: "openwebui"\ndisplayName: "Open WebUI"\ncategory: "AI"\n'
 
 
+def _public(row):
+    return {k: v for k, v in row.items() if k != "_tracking"}
+
+
 def test_app_row_defaults(repo):
     repo.write("apps/v1/openwebui/app.yaml", APP_TEXT)
     repo.write("apps/v1/openwebui/versions/0.6.18/values.yaml", "a: 1\n")
@@ -195,20 +209,21 @@ def test_app_row_defaults(repo):
     repo.write("apps/v1/openwebui/versions/0.3.8/values.yaml", "a: 1\n")
     repo.commit("add version", "2026-06-30")
 
-    assert ec.app_row(repo.root, repo.root / "apps/v1/openwebui") == {
+    assert _public(ec.app_row(repo.root, repo.root / "apps/v1/openwebui")) == {
         "id": "openwebui",
         "partner": "Open WebUI",
         "type": "App",
         "name": "Open WebUI",
         "start_date": "2025-08-06",
-        "first_commit_date": "2025-08-06",
-        "end_date": None,
+        "merged_date": "2025-08-06",
+        "live_date": None,
         "status": None,
         "status_note": None,
         "category": "AI",
         "versions": ["0.3.8", "0.6.18"],
         "file_path": "apps/v1/openwebui/app.yaml",
         "last_updated": "2026-06-30",
+        "is_partner": False,
     }
 
 
@@ -216,12 +231,13 @@ def test_app_row_tracking_overrides(repo):
     repo.write(
         "apps/v1/securin/app.yaml",
         'displayName: "Securin Model Security Scan"\n'
-        "tracking:\n  partner: SecurIn\n  type: API\n  status: live\n",
+        "tracking:\n  partner: SecurIn\n  type: API\n  status: live\n"
+        "  appName: Securin Model Security Scan (API)\n",
     )
     repo.commit("add", "2026-06-16")
     row = ec.app_row(repo.root, repo.root / "apps/v1/securin")
-    assert (row["partner"], row["type"], row["status"], row["versions"]) == (
-        "SecurIn", "API", "live", []
+    assert (row["partner"], row["type"], row["status"], row["versions"], row["name"]) == (
+        "SecurIn", "API", "live", [], "Securin Model Security Scan (API)"
     )
 
 
@@ -277,7 +293,7 @@ def test_manifest_from_github_env(repo):
     manifest = ec.build_manifest(repo.root, models, apps, env, NOW)
     sha = subprocess.run(["git", "-C", str(repo.root), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     assert manifest == {
-        "schema_version": 1,
+        "schema_version": 2,
         "snapshot_id": "123-2",
         "commit_sha": sha,
         "branch": "staging",
@@ -297,8 +313,9 @@ def test_manifest_local_run(repo):
 EXPECTED_COLUMNS = [
     ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
     ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
-    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
-    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("is_partner", pa.bool_()),
+    ("start_date", pa.date32()), ("merged_date", pa.date32()), ("live_date", pa.date32()),
+    ("status", pa.string()), ("status_note", pa.string()),
     ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
     ("category", pa.string()), ("versions", pa.list_(pa.string())),
     ("file_path", pa.string()), ("last_updated", pa.date32()),
@@ -342,6 +359,7 @@ def test_parquet_rows_fill_columns_per_entity_type(repo, tmp_path, monkeypatch):
     assert model["start_date"] == dt.date(2025, 7, 29)
     assert (app["partner"], app["source"], app["category"]) == ("MLflow", None, "MLOps")
     assert app["model_provider"] is None
+    assert (model["is_partner"], app["is_partner"]) == (None, False)
 
 
 def test_parquet_snapshot_columns_repeat_on_every_row(repo, tmp_path, monkeypatch):
@@ -352,13 +370,13 @@ def test_parquet_snapshot_columns_repeat_on_every_row(repo, tmp_path, monkeypatc
     snapshot = {(r["snapshot_id"], r["commit_sha"], r["branch"], r["generated_at"], r["schema_version"]) for r in rows}
     assert len(snapshot) == 1
     snapshot_id, sha, branch, generated_at, version = snapshot.pop()
-    assert (snapshot_id, branch, version, len(sha)) == ("99-1", "staging", 1, 40)
+    assert (snapshot_id, branch, version, len(sha)) == ("99-1", "staging", 2, 40)
     assert generated_at.tzinfo is not None
 
 
 def test_build_table_keeps_schema_without_apps():
     manifest = {"snapshot_id": "1-1", "commit_sha": "a" * 40, "branch": "staging",
-                "generated_at": "2026-10-01T10:00:00Z", "schema_version": 1}
+                "generated_at": "2026-10-01T10:00:00Z", "schema_version": 2}
     table = ec.build_table([], [], manifest)
     assert [(f.name, f.type) for f in table.schema] == EXPECTED_COLUMNS
     assert table.num_rows == 0
@@ -381,7 +399,7 @@ def test_main_bad_yaml_fails_without_writing(repo, tmp_path, capsys):
 @pytest.mark.parametrize(
     "content",
     [
-        b"name: x\ntracking:\n  endDate: 2026-02-30\n",  # YAML date that cannot exist
+        b"name: x\ntracking:\n  liveDate: 2026-02-30\n",  # YAML date that cannot exist
         b"name: \xff\xfe broken\n",  # not UTF-8
     ],
 )
@@ -439,16 +457,16 @@ def _merge_feature(repo, rel: str, text: str, authored: str, merged: str) -> Non
     repo.merge("feat", merged)
 
 
-def test_model_start_date_is_merge_into_staging(repo):
+def test_model_merged_date_is_merge_into_staging(repo):
     _merge_feature(repo, "models/v1/m.yaml", MODEL_TEXT, "2026-08-19", "2026-09-17")
     row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
+    assert (row["start_date"], row["merged_date"]) == ("2026-08-19", "2026-09-17")
 
 
-def test_app_start_date_is_merge_into_staging(repo):
+def test_app_merged_date_is_merge_into_staging(repo):
     _merge_feature(repo, "apps/v1/x/app.yaml", APP_TEXT, "2026-02-06", "2026-07-08")
     row = ec.app_row(repo.root, repo.root / "apps/v1/x")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-07-08", "2026-02-06")
+    assert (row["start_date"], row["merged_date"]) == ("2026-02-06", "2026-07-08")
 
 
 def test_start_date_survives_rename_after_merge(repo):
@@ -456,11 +474,234 @@ def test_start_date_survives_rename_after_merge(repo):
     repo.run("mv", "models/v1/llama2-7b.yaml", "models/v1/llama3-8b.yaml")
     repo.commit("fix file name", "2026-06-30")
     row = ec.model_row(repo.root, repo.root / "models/v1/llama3-8b.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2025-07-29", "2025-07-20")
+    assert (row["start_date"], row["merged_date"]) == ("2025-07-20", "2025-07-29")
 
 
 def test_start_date_uses_landing_date_for_rebased_commits(repo):
     repo.write("models/v1/m.yaml", MODEL_TEXT)
     repo.commit("rebase-merged", "2026-08-19", landed="2026-09-17")
     row = ec.model_row(repo.root, repo.root / "models/v1/m.yaml")
-    assert (row["start_date"], row["first_commit_date"]) == ("2026-09-17", "2026-08-19")
+    assert (row["start_date"], row["merged_date"]) == ("2026-08-19", "2026-09-17")
+
+
+def _partner(**overrides):
+    entry = {"id": "clearml", "name": "ClearML", "onDashboard": True}
+    entry.update(overrides)
+    return entry
+
+
+def _write_const(ui_repo, entries):
+    """partners.const.ts with one `{ id, name }` per entry; an id of None writes a name-only entry."""
+    lines = [
+        f"  {{ id: '{pid}', name: '{name}' }},\n" if pid else f"  {{ name: '{name}' }},\n"
+        for pid, name in entries
+    ]
+    ui_repo.write(ec.PARTNERS_CONST, "".join(lines))
+
+
+def _write_partners(ui_repo, entries, const_ids=("clearml",)):
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")
+    _write_const(ui_repo, [(i, f"Const {i}") for i in const_ids])
+
+
+def test_load_partners_normalises_entries(ui_repo):
+    _write_partners(ui_repo, [_partner(appName="ClearML AI infrastructure platform", type="App",
+                                       status="live", startDate="2026-05-19", liveDate="2026-08-06")])
+    assert ec.load_partners(ui_repo.root) == [{
+        "id": "clearml", "name": "ClearML", "on_dashboard": True,
+        "app_name": "ClearML AI infrastructure platform", "type": "App", "status": "live",
+        "start_date": "2026-05-19", "live_date": "2026-08-06", "note": None,
+    }]
+
+
+@pytest.mark.parametrize("entries, message", [
+    ([_partner(livedate="2026-08-06")], r"\(clearml\).*unknown keys"),
+    ([_partner(onDashboard="yes")], r"\(clearml\).*onDashboard"),
+    ([{"id": "x", "onDashboard": True}], r"\(x\).*missing name"),
+    ([_partner(status="done")], r"\(clearml\).*status"),
+    ([_partner(type="Service")], r"\(clearml\).*type"),
+    ([_partner(liveDate="08/06/2026")], r"\(clearml\).*liveDate"),
+    ([_partner(startDate="soon")], r"\(clearml\).*startDate"),
+    ([_partner(), _partner()], r"duplicate id 'clearml'"),
+    ([_partner(id="Clear_ML")], r"\(Clear_ML\).*id must"),
+    ({"id": "clearml"}, "expected a JSON array"),
+])
+def test_load_partners_rejects_bad_entries(ui_repo, entries, message):
+    _write_partners(ui_repo, entries)
+    with pytest.raises(ec.CatalogError, match=message):
+        ec.load_partners(ui_repo.root)
+
+
+def test_load_partners_blank_dates_are_not_set(ui_repo):
+    _write_partners(ui_repo, [_partner(status="in-progress", startDate="", liveDate=" ")])
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert (partner["start_date"], partner["live_date"]) == (None, None)
+
+
+def test_load_partners_rejects_invalid_json(ui_repo):
+    ui_repo.write(ec.PARTNERS_FILE, "[{")
+    with pytest.raises(ec.CatalogError, match="invalid JSON"):
+        ec.load_partners(ui_repo.root)
+
+
+def test_drift_warnings_name_both_directions(ui_repo):
+    _write_partners(ui_repo, [_partner(), _partner(id="old", name="Old")], const_ids=("clearml", "dataiku"))
+    partners = ec.load_partners(ui_repo.root)
+    const_ids = ec.const_partner_ids(ui_repo.root)
+    assert const_ids == ["clearml", "dataiku"]
+    warnings = ec.drift_warnings(partners, const_ids)
+    assert len(warnings) == 2
+    assert "'dataiku'" in warnings[0] and ec.PARTNERS_FILE in warnings[0]
+    assert "'old'" in warnings[1] and "no longer" in warnings[1]
+
+
+def test_const_partner_ids_missing_file(ui_repo):
+    assert ec.const_partner_ids(ui_repo.root) is None
+
+
+def test_partner_row_defaults_and_git_dates(ui_repo):
+    _write_partners(ui_repo, [_partner(type="API", status="live", liveDate="2026-06-29")])
+    ui_repo.commit("add partners", "2026-06-16")
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert ec.partner_row(ui_repo.root, partner) == {
+        "id": "clearml", "partner": "ClearML", "type": "API", "name": "ClearML",
+        "start_date": "2026-06-16", "merged_date": "2026-06-16", "live_date": "2026-06-29",
+        "status": "live", "status_note": None, "category": None, "versions": None,
+        "file_path": f"bridge-ui/{ec.PARTNERS_FILE}", "last_updated": None, "is_partner": True,
+    }
+
+
+def test_partner_start_date_override_wins(ui_repo):
+    _write_partners(ui_repo, [_partner(startDate="2026-05-19", appName="ClearML AI infrastructure platform")])
+    ui_repo.commit("add partners", "2026-10-12")
+    row = ec.partner_row(ui_repo.root, ec.load_partners(ui_repo.root)[0])
+    assert (row["start_date"], row["merged_date"], row["name"]) == (
+        "2026-05-19", "2026-10-12", "ClearML AI infrastructure platform")
+
+
+def test_partner_dates_from_git_ignore_formatting(ui_repo):
+    _write_partners(ui_repo, [_partner(id="other", name="Other")], const_ids=("other",))
+    ui_repo.commit("first partner", "2026-01-01")
+    ui_repo.run("checkout", "-q", "-b", "feat")
+    entries = [_partner(id="other", name="Other"), _partner(id="nvidia-runai", name="Nvidia Run:ai")]
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, separators=(",", ":")))  # compact
+    ui_repo.commit("add dataiku", "2026-08-14")
+    ui_repo.run("checkout", "-q", "staging")
+    ui_repo.merge("feat", "2026-08-27")
+    ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")  # reformatted
+    ui_repo.commit("reformat", "2026-09-01")
+    partner = {"id": "nvidia-runai", "name": "Nvidia Run:ai"}  # not in the const file
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-08-14", "2026-08-27")
+
+
+def test_partner_dates_come_from_const_file_history(ui_repo):
+    # The Partners page entry predates both ids in the const file and the tracking file.
+    ui_repo.write("README.md", "bridge-ui\n")
+    ui_repo.commit("init", "2026-01-01")
+    ui_repo.run("checkout", "-q", "-b", "feat")
+    _write_const(ui_repo, [(None, "Nvidia Run:ai")])
+    ui_repo.commit("add partners page", "2026-05-06")
+    ui_repo.run("checkout", "-q", "staging")
+    ui_repo.merge("feat", "2026-05-08")
+    _write_const(ui_repo, [("nvidia-runai", "Nvidia Run:ai")])
+    ui_repo.commit("add ids", "2026-09-07")
+    _write_partners(ui_repo, [_partner(id="nvidia-runai", name="Nvidia Run:ai")],
+                    const_ids=())
+    _write_const(ui_repo, [("nvidia-runai", "Nvidia Run:ai")])
+    ui_repo.commit("add tracking file", "2026-10-12")
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-05-06", "2026-05-08")
+    row = ec.partner_row(ui_repo.root, partner)
+    assert (row["start_date"], row["merged_date"]) == ("2026-05-06", "2026-05-08")
+
+
+def test_partner_dates_match_id_when_name_changed(ui_repo):
+    _write_const(ui_repo, [("unsloth-studio", "Unsloth Studio")])
+    ui_repo.commit("add unsloth", "2026-07-30")
+    _write_const(ui_repo, [("unsloth-studio", "Unsloth Studio (Beta)")])
+    ui_repo.commit("rename", "2026-09-01")
+    partner = {"id": "unsloth-studio", "name": "Unsloth Studio (Beta)"}
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-07-30", "2026-07-30")
+
+
+def test_merge_adds_dashboard_partners_and_skips_hidden(repo, ui_repo):
+    repo.write("apps/v1/mlflow/app.yaml", 'displayName: "MLflow"\n')
+    repo.commit("add mlflow", "2025-09-02")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/mlflow")]
+    _write_partners(ui_repo, [_partner(), _partner(id="ltm", name="LTM", onDashboard=False)],
+                    const_ids=("clearml", "ltm"))
+    ui_repo.commit("partners", "2026-05-06")
+    merged = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)
+    assert [(r["id"], r["is_partner"]) for r in merged] == [("clearml", True), ("mlflow", False)]
+
+
+def test_overlap_catalog_tracking_wins_partner_fills_gaps(repo, ui_repo):
+    repo.write("apps/v1/linkervision/app.yaml",
+               'displayName: "Linker Vision Observ"\ntracking:\n  status: in-progress\n')
+    repo.commit("add linkervision", "2026-02-06")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/linkervision")]
+    _write_partners(ui_repo, [_partner(id="linkervision", name="LinkerVision",
+                                       appName="LinkerVision Video Reasoning", status="live",
+                                       liveDate="2026-07-02", startDate="2026-06-02")],
+                    const_ids=("linkervision",))
+    ui_repo.commit("partners", "2026-05-06")
+    row = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)[0]
+    assert (row["partner"], row["name"], row["status"], row["live_date"], row["start_date"],
+            row["is_partner"]) == ("LinkerVision", "LinkerVision Video Reasoning", "in-progress",
+                                   "2026-07-02", "2026-02-06", True)
+
+
+def test_catalog_app_with_hidden_partner_entry_stays(repo, ui_repo):
+    repo.write("apps/v1/unsloth-studio/app.yaml", 'displayName: "Unsloth Studio"\n')
+    repo.commit("add unsloth", "2026-07-21")
+    apps = [ec.app_row(repo.root, repo.root / "apps/v1/unsloth-studio")]
+    _write_partners(ui_repo, [_partner(id="unsloth-studio", name="Unsloth Studio (Beta)", onDashboard=False)],
+                    const_ids=("unsloth-studio",))
+    ui_repo.commit("partners", "2026-07-30")
+    merged = ec.merge_partner_apps(apps, ec.load_partners(ui_repo.root), ui_repo.root)
+    assert [(r["id"], r["partner"], r["is_partner"]) for r in merged] == [
+        ("unsloth-studio", "Unsloth Studio (Beta)", True)]
+
+
+def _run_main_with(repo, tmp_path, monkeypatch, *extra):
+    monkeypatch.setenv("GITHUB_RUN_ID", "99")
+    monkeypatch.delenv("GITHUB_RUN_ATTEMPT", raising=False)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+    out = tmp_path / "out"
+    assert ec.main(["--repo", str(repo.root), "--out", str(out), *extra]) == 0
+    return pq.read_table(out / "bridge_catalog_snapshot.parquet").to_pylist()
+
+
+def test_main_includes_partners_and_prints_drift(repo, ui_repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    _write_partners(ui_repo, [_partner(type="API")], const_ids=("clearml", "katonic"))
+    ui_repo.commit("partners", "2026-05-06")
+    rows = _run_main_with(repo, tmp_path, monkeypatch, "--partners-repo", str(ui_repo.root))
+    apps = [(r["id"], r["type"], r["is_partner"]) for r in rows if r["entity_type"] == "App"]
+    assert apps == [("clearml", "API", True), ("mlflow", "App", False)]
+    assert "::warning::partner 'katonic'" in capsys.readouterr().out
+
+
+def test_main_without_partner_file_warns_and_exports(repo, ui_repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    ui_repo.write("README.md", "ui\n")
+    ui_repo.commit("init", "2026-01-01")
+    rows = _run_main_with(repo, tmp_path, monkeypatch, "--partners-repo", str(ui_repo.root))
+    assert [r["id"] for r in rows if r["entity_type"] == "App"] == ["mlflow"]
+    assert f"::warning::{ec.PARTNERS_FILE} not found" in capsys.readouterr().out
+
+
+def test_main_without_partners_repo_warns(repo, tmp_path, monkeypatch, capsys):
+    seed_catalog(repo)
+    _run_main_with(repo, tmp_path, monkeypatch)
+    assert "::warning::--partners-repo not given" in capsys.readouterr().out
+
+
+def test_main_bad_partner_file_fails_without_writing(repo, ui_repo, tmp_path, capsys):
+    seed_catalog(repo)
+    _write_partners(ui_repo, [_partner(status="done")])
+    ui_repo.commit("partners", "2026-05-06")
+    out = tmp_path / "out"
+    assert ec.main(["--repo", str(repo.root), "--out", str(out), "--partners-repo", str(ui_repo.root)]) == 1
+    assert "(clearml)" in capsys.readouterr().err
+    assert not out.exists()

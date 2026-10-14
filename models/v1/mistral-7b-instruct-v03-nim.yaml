@@ -24,3 +24,7 @@ resourceRequirements:
 dType: []
 config:
   maxPositionEmbeddings: 32768
+
+tracking:
+  status: live
+  liveDate: 2025-11-23

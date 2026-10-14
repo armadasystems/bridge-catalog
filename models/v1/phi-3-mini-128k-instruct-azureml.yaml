@@ -27,3 +27,7 @@ resourceRequirements:
 config:
   maxPositionEmbeddings: 131072
 
+
+tracking:
+  status: live
+  liveDate: 2026-05-07

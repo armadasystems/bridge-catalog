@@ -26,3 +26,7 @@ config:
   maxPositionEmbeddings: 1048576
 metadata:
   securityScan: true
+
+tracking:
+  status: live
+  liveDate: 2026-09-10

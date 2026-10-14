@@ -35,8 +35,41 @@ jobs:
       - name: Test exporter
         run: python -m pytest scripts/tests -q
 
+      # Partner apps come from bridge-ui's partners.tracking.json (read with the shared GitHub App).
+      # Optional: without a token (Dependabot/fork PRs, rotated key, lost access) the snapshot
+      # still publishes models and catalog apps, just without the bridge-ui partners.
+      - name: Get token for bridge-ui
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: armadasystems
+          repositories: bridge-ui
+
+      - name: Checkout bridge-ui partner data
+        id: ui-checkout
+        if: steps.app-token.outcome == 'success'
+        continue-on-error: true
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: armadasystems/bridge-ui
+          ref: staging
+          path: bridge-ui
+          token: ${{ steps.app-token.outputs.token }}
+          sparse-checkout: src/features/partners
+          fetch-depth: 0 # partner start dates come from history
+
       - name: Export snapshot
-        run: python scripts/export_catalog.py --repo . --out out
+        run: |
+          args="--repo . --out out"
+          if [ "${{ steps.ui-checkout.outcome }}" = "success" ]; then
+            args="$args --partners-repo bridge-ui"
+          else
+            echo "::warning::bridge-ui checkout unavailable; exporting without partner apps"
+          fi
+          python scripts/export_catalog.py $args
 
       # Re-running an old run checks out an old commit; don't publish it as the newest snapshot.
       - name: Check commit is still the branch tip

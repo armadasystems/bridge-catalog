@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import os
+import re
 import subprocess
 import sys
 from collections.abc import Mapping
@@ -61,7 +63,7 @@ def last_updated_date(repo: Path, rel_path: str) -> str | None:
 
 
 STATUSES = ("in-progress", "live", "deprecated")
-TRACKING_KEYS = ("status", "endDate", "note", "source", "partner", "type")
+TRACKING_KEYS = ("status", "liveDate", "note", "source", "partner", "type", "appName")
 
 
 def _optional_str(value) -> str | None:
@@ -71,7 +73,7 @@ def _optional_str(value) -> str | None:
     return text or None
 
 
-def _iso_date(value, where: str) -> str | None:
+def _iso_date(value, where: str, field: str) -> str | None:
     if value is None:
         return None
     if isinstance(value, dt.datetime):
@@ -79,11 +81,14 @@ def _iso_date(value, where: str) -> str | None:
     if isinstance(value, dt.date):
         return value.isoformat()
     if isinstance(value, str):
+        # Blank is a common placeholder for an unknown date, same as _optional_str.
+        if not value.strip():
+            return None
         try:
             return dt.date.fromisoformat(value.strip()).isoformat()
         except ValueError:
             pass
-    raise CatalogError(f"{where}: tracking.endDate must be a YYYY-MM-DD date, got {value!r}")
+    raise CatalogError(f"{where}: {field} must be a YYYY-MM-DD date, got {value!r}")
 
 
 def parse_tracking(doc: dict, where: str) -> dict:
@@ -105,11 +110,12 @@ def parse_tracking(doc: dict, where: str) -> dict:
         )
     return {
         "status": status,
-        "end_date": _iso_date(raw.get("endDate"), where),
+        "live_date": _iso_date(raw.get("liveDate"), where, "tracking.liveDate"),
         "note": _optional_str(raw.get("note")),
         "source": _optional_str(raw.get("source")),
         "partner": _optional_str(raw.get("partner")),
         "type": _optional_str(raw.get("type")),
+        "app_name": _optional_str(raw.get("appName")),
     }
 
 
@@ -199,9 +205,9 @@ def model_row(repo: Path, path: Path) -> dict:
         "source": derive_source(doc, tracking),
         "type": "Model",
         "name": name,
-        "start_date": model_start_date(repo, rel, _identity(doc), on_branch=True),
-        "first_commit_date": model_start_date(repo, rel, _identity(doc)),
-        "end_date": tracking["end_date"],
+        "start_date": model_start_date(repo, rel, _identity(doc)),
+        "merged_date": model_start_date(repo, rel, _identity(doc), on_branch=True),
+        "live_date": tracking["live_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
         "model_provider": _optional_str(doc.get("modelProvider")),
@@ -233,22 +239,25 @@ def app_row(repo: Path, app_dir: Path) -> dict:
         "id": app_dir.name,
         "partner": tracking["partner"] or name,
         "type": tracking["type"] or "App",
-        "name": name,
-        "start_date": first_added_date(repo, rel_dir, follow=False, on_branch=True),
-        "first_commit_date": first_added_date(repo, rel_dir, follow=False),
-        "end_date": tracking["end_date"],
+        "name": tracking["app_name"] or name,
+        "start_date": first_added_date(repo, rel_dir, follow=False),
+        "merged_date": first_added_date(repo, rel_dir, follow=False, on_branch=True),
+        "live_date": tracking["live_date"],
         "status": tracking["status"],
         "status_note": tracking["note"],
         "category": _optional_str(doc.get("category")),
         "versions": versions,
         "file_path": rel,
         "last_updated": last_updated_date(repo, rel_dir),
+        "is_partner": False,
+        # Raw tracking values: partner data may only fill what these leave empty.
+        "_tracking": tracking,
     }
 
 
 MODELS_DIR = "models/v1"
 APPS_DIR = "apps/v1"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def _ensure_unique_ids(rows: list[dict]) -> None:
@@ -300,21 +309,198 @@ def build_manifest(
     }
 
 
+PARTNERS_FILE = "src/features/partners/partners.tracking.json"
+PARTNERS_CONST = "src/features/partners/partners.const.ts"
+PARTNER_KEYS = (
+    "id", "name", "onDashboard", "appName", "type", "status", "startDate", "liveDate", "note",
+)
+PARTNER_TYPES = ("App", "API")
+_PARTNER_ID = re.compile(r"[a-z0-9-]+")
+_CONST_ID = re.compile(r"\bid:\s*'([a-z0-9-]+)'")
+
+
+def load_partners(ui_repo: Path) -> list[dict]:
+    """Validated entries of bridge-ui's partners.tracking.json, in file order."""
+    where = f"bridge-ui:{PARTNERS_FILE}"
+    try:
+        data = json.loads((ui_repo / PARTNERS_FILE).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError, OSError) as exc:
+        raise CatalogError(f"{where}: invalid JSON: {exc}") from exc
+    if not isinstance(data, list):
+        raise CatalogError(f"{where}: expected a JSON array")
+    partners, seen = [], set()
+    for index, raw in enumerate(data):
+        if not isinstance(raw, dict):
+            raise CatalogError(f"{where}: entry {index} must be an object")
+        pid = _optional_str(raw.get("id"))
+        at = f"{where} ({pid or f'entry {index}'})"
+        unknown = sorted(str(key) for key in raw if key not in PARTNER_KEYS)
+        if unknown:
+            raise CatalogError(f"{at}: unknown keys {unknown}; allowed: {list(PARTNER_KEYS)}")
+        for key in ("id", "name"):
+            if not _optional_str(raw.get(key)):
+                raise CatalogError(f"{at}: missing {key}")
+        # Ids go into a git -G (POSIX) regex unescaped, so keep them to this safe set.
+        if not _PARTNER_ID.fullmatch(pid):
+            raise CatalogError(f"{at}: id must use only lowercase letters, digits and '-'")
+        if not isinstance(raw.get("onDashboard"), bool):
+            raise CatalogError(f"{at}: onDashboard must be true or false")
+        if pid in seen:
+            raise CatalogError(f"{where}: duplicate id {pid!r}")
+        seen.add(pid)
+        status = _optional_str(raw.get("status"))
+        if status is not None and status not in STATUSES:
+            raise CatalogError(f"{at}: status must be one of {list(STATUSES)}, got {status!r}")
+        kind = _optional_str(raw.get("type"))
+        if kind is not None and kind not in PARTNER_TYPES:
+            raise CatalogError(f"{at}: type must be one of {list(PARTNER_TYPES)}, got {kind!r}")
+        partners.append({
+            "id": pid,
+            "name": _optional_str(raw.get("name")),
+            "on_dashboard": raw["onDashboard"],
+            "app_name": _optional_str(raw.get("appName")),
+            "type": kind,
+            "status": status,
+            "start_date": _iso_date(raw.get("startDate"), at, "startDate"),
+            "live_date": _iso_date(raw.get("liveDate"), at, "liveDate"),
+            "note": _optional_str(raw.get("note")),
+        })
+    return partners
+
+
+def const_partner_ids(ui_repo: Path) -> list[str] | None:
+    """Partner ids on the Partners page, or None when the const file is missing."""
+    path = ui_repo / PARTNERS_CONST
+    if not path.is_file():
+        return None
+    return _CONST_ID.findall(path.read_text(encoding="utf-8"))
+
+
+def drift_warnings(partners: list[dict], const_ids: list[str]) -> list[str]:
+    json_ids = [p["id"] for p in partners]
+    missing = [
+        f"partner {pid!r} is in {PARTNERS_CONST} but not in {PARTNERS_FILE}; "
+        "it won't reach the dashboard"
+        for pid in const_ids if pid not in json_ids
+    ]
+    stale = [
+        f"partner {pid!r} is in {PARTNERS_FILE} but no longer in {PARTNERS_CONST}"
+        for pid in json_ids if pid not in const_ids
+    ]
+    return missing + stale
+
+
+def _entry_added_date(
+    ui_repo: Path, rel_path: str, pickaxe: str, on_branch: bool
+) -> str | None:
+    log = _git(
+        ui_repo, "log", pickaxe, *_history_args(on_branch), "--date=short",
+        "--name-only", "--", rel_path,
+    )
+    dates = [line.split(" ", 1)[1] for line in log.splitlines() if line.startswith("@")]
+    return dates[-1] if dates else None
+
+
+def _earliest_added_date(ui_repo: Path, partner: dict, on_branch: bool) -> str | None:
+    # The Partners page entry (partners.const.ts) dates from when the partner was added;
+    # partners.tracking.json only appeared later (bridge-ui#1080). Const entries were keyed
+    # by name until ids were added, so match the name literally (-S) or the id.
+    const_dates = [
+        _entry_added_date(ui_repo, PARTNERS_CONST, pickaxe, on_branch)
+        for pickaxe in (f"-Sname: '{partner['name']}'", f"-Gid:[[:space:]]*'{partner['id']}'")
+    ]
+    found = [date for date in const_dates if date]
+    if found:
+        return min(found)
+    # -G (regex on changed lines) rather than -S: survives reformatting of the JSON.
+    pattern = f'-G"id"[[:space:]]*:[[:space:]]*"{partner["id"]}"'
+    return _entry_added_date(ui_repo, PARTNERS_FILE, pattern, on_branch)
+
+
+def partner_dates(ui_repo: Path, partner: dict) -> tuple[str | None, str | None]:
+    """(first commit of the partner's entry, merge of it into the checked-out branch)."""
+    return (
+        _earliest_added_date(ui_repo, partner, on_branch=False),
+        _earliest_added_date(ui_repo, partner, on_branch=True),
+    )
+
+
+def partner_row(ui_repo: Path, partner: dict) -> dict:
+    first_commit, merged = partner_dates(ui_repo, partner)
+    return {
+        "id": partner["id"],
+        "partner": partner["name"],
+        "type": partner["type"] or "App",
+        "name": partner["app_name"] or partner["name"],
+        # Existing partners predate the tracking file, so their real start is given explicitly.
+        "start_date": partner["start_date"] or first_commit,
+        "merged_date": merged,
+        "live_date": partner["live_date"],
+        "status": partner["status"],
+        "status_note": partner["note"],
+        "category": None,
+        "versions": None,
+        "file_path": f"bridge-ui/{PARTNERS_FILE}",
+        "last_updated": None,
+        "is_partner": True,
+    }
+
+
+def _with_partner(app: dict, partner: dict) -> dict:
+    tracking = app["_tracking"]
+    return {
+        **app,
+        "partner": tracking["partner"] or partner["name"],
+        "name": tracking["app_name"] or partner["app_name"] or app["name"],
+        "type": tracking["type"] or partner["type"] or "App",
+        "status": tracking["status"] or partner["status"],
+        "live_date": tracking["live_date"] or partner["live_date"],
+        "status_note": tracking["note"] or partner["note"],
+        "is_partner": True,
+    }
+
+
+def merge_partner_apps(apps: list[dict], partners: list[dict], ui_repo: Path) -> list[dict]:
+    """Catalog apps (always kept) plus dashboard partners; one row per id."""
+    by_id = {p["id"]: p for p in partners}
+    rows = [_with_partner(app, by_id[app["id"]]) if app["id"] in by_id else app for app in apps]
+    app_ids = {app["id"] for app in apps}
+    rows += [
+        partner_row(ui_repo, p) for p in partners if p["on_dashboard"] and p["id"] not in app_ids
+    ]
+    return sorted(rows, key=lambda row: row["id"])
+
+
+def add_partner_apps(ui_repo: Path, apps: list[dict]) -> tuple[list[dict], list[str]]:
+    """Apps merged with bridge-ui partners, plus warnings for the CI log."""
+    ensure_full_history(ui_repo)
+    if not (ui_repo / PARTNERS_FILE).is_file():
+        return apps, [f"{PARTNERS_FILE} not found in {ui_repo}; partner apps are not included"]
+    partners = load_partners(ui_repo)
+    const_ids = const_partner_ids(ui_repo)
+    if const_ids is None:
+        warnings = [f"{PARTNERS_CONST} not found in {ui_repo}; drift not checked"]
+    else:
+        warnings = drift_warnings(partners, const_ids)
+    return merge_partner_apps(apps, partners, ui_repo), warnings
+
+
 SNAPSHOT_FILE = "bridge_catalog_snapshot.parquet"
 
 # One row per model/app. Column order and types are the contract with the data team.
 SNAPSHOT_SCHEMA = pa.schema([
     ("entity_type", pa.string()), ("id", pa.string()), ("name", pa.string()),
     ("type", pa.string()), ("source", pa.string()), ("partner", pa.string()),
-    ("start_date", pa.date32()), ("first_commit_date", pa.date32()),
-    ("end_date", pa.date32()), ("status", pa.string()), ("status_note", pa.string()),
+    ("is_partner", pa.bool_()),
+    ("start_date", pa.date32()), ("merged_date", pa.date32()), ("live_date", pa.date32()),
+    ("status", pa.string()), ("status_note", pa.string()),
     ("model_provider", pa.string()), ("provider", pa.string()), ("model_id", pa.string()),
     ("category", pa.string()), ("versions", pa.list_(pa.string())),
     ("file_path", pa.string()), ("last_updated", pa.date32()),
     ("snapshot_id", pa.string()), ("commit_sha", pa.string()), ("branch", pa.string()),
     ("generated_at", pa.timestamp("ms", tz="UTC")), ("schema_version", pa.int32()),
 ])
-DATE_COLUMNS = ("start_date", "first_commit_date", "end_date", "last_updated")
+DATE_COLUMNS = ("start_date", "merged_date", "live_date", "last_updated")
 SNAPSHOT_COLUMNS = ("snapshot_id", "commit_sha", "branch", "schema_version")
 
 
@@ -343,15 +529,24 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export the catalog snapshot for Pulse.")
     parser.add_argument("--repo", type=Path, default=Path("."), help="bridge-catalog checkout")
     parser.add_argument("--out", type=Path, default=Path("out"), help="output directory")
+    parser.add_argument(
+        "--partners-repo", type=Path, default=None, help="bridge-ui checkout with partner data"
+    )
     args = parser.parse_args(argv)
     repo = args.repo.resolve()
     try:
         # Build everything before writing so a bad file never leaves partial output.
         models, apps = build_snapshot(repo)
+        if args.partners_repo:
+            apps, warnings = add_partner_apps(args.partners_repo.resolve(), apps)
+        else:
+            warnings = ["--partners-repo not given; partner apps are not included"]
         manifest = build_manifest(repo, models, apps, os.environ, dt.datetime.now(dt.timezone.utc))
     except CatalogError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    for warning in warnings:
+        print(f"::warning::{warning}")
     write_snapshot(args.out, models, apps, manifest)
     print(f"wrote {len(models)} models and {len(apps)} apps to {args.out}")
     return 0

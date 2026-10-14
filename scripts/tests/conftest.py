@@ -45,9 +45,7 @@ class GitRepo:
         )
 
 
-@pytest.fixture
-def repo(tmp_path: Path) -> GitRepo:
-    root = tmp_path / "catalog"
+def _init_repo(root: Path) -> GitRepo:
     root.mkdir()
     git = GitRepo(root)
     git.run("init", "-q", "-b", "staging")
@@ -55,3 +53,14 @@ def repo(tmp_path: Path) -> GitRepo:
     git.run("config", "user.name", "Test")
     git.run("config", "commit.gpgsign", "false")
     return git
+
+
+@pytest.fixture
+def repo(tmp_path: Path) -> GitRepo:
+    return _init_repo(tmp_path / "catalog")
+
+
+@pytest.fixture
+def ui_repo(tmp_path: Path) -> GitRepo:
+    """A stand-in for bridge-ui, the partner data repo."""
+    return _init_repo(tmp_path / "ui")
