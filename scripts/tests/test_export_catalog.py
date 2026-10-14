@@ -101,6 +101,12 @@ def test_live_date_accepts_yaml_date_and_string(raw):
     assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
 
 
+@pytest.mark.parametrize("raw", ["liveDate: ''", "liveDate: '  '"])
+def test_blank_live_date_is_not_set(raw):
+    doc = yaml.safe_load(f"tracking:\n  {raw}\n")
+    assert ec.parse_tracking(doc, "f.yaml")["live_date"] is None
+
+
 def test_live_date_accepts_datetime():
     doc = {"tracking": {"liveDate": dt.datetime(2026, 9, 10, 8, 30)}}
     assert ec.parse_tracking(doc, "f.yaml")["live_date"] == "2026-09-10"
@@ -484,9 +490,18 @@ def _partner(**overrides):
     return entry
 
 
+def _write_const(ui_repo, entries):
+    """partners.const.ts with one `{ id, name }` per entry; an id of None writes a name-only entry."""
+    lines = [
+        f"  {{ id: '{pid}', name: '{name}' }},\n" if pid else f"  {{ name: '{name}' }},\n"
+        for pid, name in entries
+    ]
+    ui_repo.write(ec.PARTNERS_CONST, "".join(lines))
+
+
 def _write_partners(ui_repo, entries, const_ids=("clearml",)):
     ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")
-    ui_repo.write(ec.PARTNERS_CONST, "".join(f"  {{ id: '{i}', name: 'x' }},\n" for i in const_ids))
+    _write_const(ui_repo, [(i, f"Const {i}") for i in const_ids])
 
 
 def test_load_partners_normalises_entries(ui_repo):
@@ -506,6 +521,7 @@ def test_load_partners_normalises_entries(ui_repo):
     ([_partner(status="done")], r"\(clearml\).*status"),
     ([_partner(type="Service")], r"\(clearml\).*type"),
     ([_partner(liveDate="08/06/2026")], r"\(clearml\).*liveDate"),
+    ([_partner(startDate="soon")], r"\(clearml\).*startDate"),
     ([_partner(), _partner()], r"duplicate id 'clearml'"),
     ([_partner(id="Clear_ML")], r"\(Clear_ML\).*id must"),
     ({"id": "clearml"}, "expected a JSON array"),
@@ -514,6 +530,12 @@ def test_load_partners_rejects_bad_entries(ui_repo, entries, message):
     _write_partners(ui_repo, entries)
     with pytest.raises(ec.CatalogError, match=message):
         ec.load_partners(ui_repo.root)
+
+
+def test_load_partners_blank_dates_are_not_set(ui_repo):
+    _write_partners(ui_repo, [_partner(status="in-progress", startDate="", liveDate=" ")])
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert (partner["start_date"], partner["live_date"]) == (None, None)
 
 
 def test_load_partners_rejects_invalid_json(ui_repo):
@@ -568,7 +590,38 @@ def test_partner_dates_from_git_ignore_formatting(ui_repo):
     ui_repo.merge("feat", "2026-08-27")
     ui_repo.write(ec.PARTNERS_FILE, json.dumps(entries, indent=2) + "\n")  # reformatted
     ui_repo.commit("reformat", "2026-09-01")
-    assert ec.partner_dates(ui_repo.root, "nvidia-runai") == ("2026-08-14", "2026-08-27")
+    partner = {"id": "nvidia-runai", "name": "Nvidia Run:ai"}  # not in the const file
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-08-14", "2026-08-27")
+
+
+def test_partner_dates_come_from_const_file_history(ui_repo):
+    # The Partners page entry predates both ids in the const file and the tracking file.
+    ui_repo.write("README.md", "bridge-ui\n")
+    ui_repo.commit("init", "2026-01-01")
+    ui_repo.run("checkout", "-q", "-b", "feat")
+    _write_const(ui_repo, [(None, "Nvidia Run:ai")])
+    ui_repo.commit("add partners page", "2026-05-06")
+    ui_repo.run("checkout", "-q", "staging")
+    ui_repo.merge("feat", "2026-05-08")
+    _write_const(ui_repo, [("nvidia-runai", "Nvidia Run:ai")])
+    ui_repo.commit("add ids", "2026-09-07")
+    _write_partners(ui_repo, [_partner(id="nvidia-runai", name="Nvidia Run:ai")],
+                    const_ids=())
+    _write_const(ui_repo, [("nvidia-runai", "Nvidia Run:ai")])
+    ui_repo.commit("add tracking file", "2026-10-12")
+    partner = ec.load_partners(ui_repo.root)[0]
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-05-06", "2026-05-08")
+    row = ec.partner_row(ui_repo.root, partner)
+    assert (row["start_date"], row["merged_date"]) == ("2026-05-06", "2026-05-08")
+
+
+def test_partner_dates_match_id_when_name_changed(ui_repo):
+    _write_const(ui_repo, [("unsloth-studio", "Unsloth Studio")])
+    ui_repo.commit("add unsloth", "2026-07-30")
+    _write_const(ui_repo, [("unsloth-studio", "Unsloth Studio (Beta)")])
+    ui_repo.commit("rename", "2026-09-01")
+    partner = {"id": "unsloth-studio", "name": "Unsloth Studio (Beta)"}
+    assert ec.partner_dates(ui_repo.root, partner) == ("2026-07-30", "2026-07-30")
 
 
 def test_merge_adds_dashboard_partners_and_skips_hidden(repo, ui_repo):

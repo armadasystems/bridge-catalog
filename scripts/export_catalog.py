@@ -81,6 +81,9 @@ def _iso_date(value, where: str, field: str) -> str | None:
     if isinstance(value, dt.date):
         return value.isoformat()
     if isinstance(value, str):
+        # Blank is a common placeholder for an unknown date, same as _optional_str.
+        if not value.strip():
+            return None
         try:
             return dt.date.fromisoformat(value.strip()).isoformat()
         except ValueError:
@@ -387,27 +390,43 @@ def drift_warnings(partners: list[dict], const_ids: list[str]) -> list[str]:
     return missing + stale
 
 
-def _entry_added_date(ui_repo: Path, partner_id: str, on_branch: bool) -> str | None:
-    # -G (regex on changed lines) rather than -S: survives reformatting of the JSON.
-    pattern = f'"id"[[:space:]]*:[[:space:]]*"{partner_id}"'
+def _entry_added_date(
+    ui_repo: Path, rel_path: str, pickaxe: str, on_branch: bool
+) -> str | None:
     log = _git(
-        ui_repo, "log", f"-G{pattern}", *_history_args(on_branch), "--date=short",
-        "--name-only", "--", PARTNERS_FILE,
+        ui_repo, "log", pickaxe, *_history_args(on_branch), "--date=short",
+        "--name-only", "--", rel_path,
     )
     dates = [line.split(" ", 1)[1] for line in log.splitlines() if line.startswith("@")]
     return dates[-1] if dates else None
 
 
-def partner_dates(ui_repo: Path, partner_id: str) -> tuple[str | None, str | None]:
+def _earliest_added_date(ui_repo: Path, partner: dict, on_branch: bool) -> str | None:
+    # The Partners page entry (partners.const.ts) dates from when the partner was added;
+    # partners.tracking.json only appeared later (bridge-ui#1080). Const entries were keyed
+    # by name until ids were added, so match the name literally (-S) or the id.
+    const_dates = [
+        _entry_added_date(ui_repo, PARTNERS_CONST, pickaxe, on_branch)
+        for pickaxe in (f"-Sname: '{partner['name']}'", f"-Gid:[[:space:]]*'{partner['id']}'")
+    ]
+    found = [date for date in const_dates if date]
+    if found:
+        return min(found)
+    # -G (regex on changed lines) rather than -S: survives reformatting of the JSON.
+    pattern = f'-G"id"[[:space:]]*:[[:space:]]*"{partner["id"]}"'
+    return _entry_added_date(ui_repo, PARTNERS_FILE, pattern, on_branch)
+
+
+def partner_dates(ui_repo: Path, partner: dict) -> tuple[str | None, str | None]:
     """(first commit of the partner's entry, merge of it into the checked-out branch)."""
     return (
-        _entry_added_date(ui_repo, partner_id, on_branch=False),
-        _entry_added_date(ui_repo, partner_id, on_branch=True),
+        _earliest_added_date(ui_repo, partner, on_branch=False),
+        _earliest_added_date(ui_repo, partner, on_branch=True),
     )
 
 
 def partner_row(ui_repo: Path, partner: dict) -> dict:
-    first_commit, merged = partner_dates(ui_repo, partner["id"])
+    first_commit, merged = partner_dates(ui_repo, partner)
     return {
         "id": partner["id"],
         "partner": partner["name"],
