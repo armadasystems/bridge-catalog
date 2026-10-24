@@ -1,0 +1,28 @@
+modelId: CohereLabs/command-a-plus-05-2026-w4a4
+name: Cohere Command A+ (W4A4)
+description: NVFP4 4-bit quantized build of Cohere's flagship 218B MoE model (25B active params) for reduced-VRAM serving, with a 128K context window. Cohere's recommended default build.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-w4a4"
+provider: huggingface
+modelProvider: Cohere
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-w4a4"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 160
+  requiredDiscSizeInGb: 109
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 131072
+  toolCallParser: cohere_command4
+  reasoningParser: cohere_command4
