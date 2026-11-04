@@ -23,6 +23,7 @@ resourceRequirements:
   requiredDiscSizeInGb: 50
 config:
   maxPositionEmbeddings: 32768
+  toolCallParser: hermes
 
 
 tracking:
