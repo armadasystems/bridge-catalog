@@ -1,0 +1,46 @@
+modelId: Qwen/Qwen3.8-27B-FP8
+name: Qwen3.8 27B (FP8)
+description: Qwen's 27B dense model with a 256K context window, shipped FP8-quantized. Built for coding and agentic tool use; requires an FP8-capable GPU (Ada/Hopper or newer).
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: "https://cdn-avatars.huggingface.co/v1/production/uploads/620760a26e3b7210c2ff1943/-s1gyJfvbE1RgO5iBeNOi.png"
+repoUrl: "https://huggingface.co/Qwen/Qwen3.8-27B-FP8"
+provider: huggingface
+modelProvider: Qwen
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/Qwen/Qwen3.8-27B-FP8"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 40
+  requiredDiscSizeInGb: 35
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 262144
+  toolCallParser: qwen3_coder
+  reasoningParser: qwen3
+  # Hybrid attention model. Without the triton prefill kernel and with DeepGEMM on, vLLM
+  # JIT-compiles kernels at startup and the pod runs out of memory. Prefix caching needs align
+  # mode on hybrid models, and coding doesn't need the vision tower.
+  vllmArgs:
+    - --gdn-prefill-backend=triton
+    - --enable-prefix-caching
+    - --mamba-cache-mode=align
+    - --language-model-only
+  vllmEnv:
+    VLLM_USE_DEEP_GEMM: "0"
+    MAX_JOBS: "8"
+    TORCHINDUCTOR_COMPILE_THREADS: "8"
+metadata:
+  securityScan: true
+
+tracking:
+  status: live
+  liveDate: 2026-11-05
