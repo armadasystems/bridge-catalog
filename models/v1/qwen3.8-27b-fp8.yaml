@@ -26,18 +26,14 @@ config:
   maxPositionEmbeddings: 262144
   toolCallParser: qwen3_coder
   reasoningParser: qwen3
-  # Hybrid attention model. Without the triton prefill kernel and with DeepGEMM on, vLLM
-  # JIT-compiles kernels at startup and the pod runs out of memory. Prefix caching needs align
-  # mode on hybrid models, and coding doesn't need the vision tower.
-  vllmArgs:
-    - --gdn-prefill-backend=triton
-    - --enable-prefix-caching
-    - --mamba-cache-mode=align
-    - --language-model-only
-  vllmEnv:
-    VLLM_USE_DEEP_GEMM: "0"
-    MAX_JOBS: "8"
-    TORCHINDUCTOR_COMPILE_THREADS: "8"
+  # Hybrid attention model: vLLM leaves prefix caching off for these unless asked.
+  enablePrefixCaching: true
+  # Coding doesn't need the vision tower.
+  languageModelOnly: true
+  # Otherwise vLLM builds FlashInfer's GDN prefill and DeepGEMM kernels at startup, and the
+  # build runs the model pod out of memory.
+  gdnPrefillBackend: triton
+  useDeepGemm: false
 metadata:
   securityScan: true
 
