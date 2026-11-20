@@ -1,0 +1,28 @@
+modelId: CohereLabs/North-Mini-Code-1.0-w4a16
+name: Cohere North Mini Code 1.0 (W4A16)
+description: NVFP4 4-bit quantized build of the 30B North Mini Code MoE model (3B active params) for agentic coding, with a 256K context window. Smallest build at roughly 20GB, suited to air-gapped bundles.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/CohereLabs/North-Mini-Code-1.0-w4a16"
+provider: huggingface
+modelProvider: Cohere
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/CohereLabs/North-Mini-Code-1.0-w4a16"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 24
+  requiredDiscSizeInGb: 20
+dType: ["auto"]
+config:
+  maxPositionEmbeddings: 262144
+  toolCallParser: cohere_command4
+  reasoningParser: cohere_command4

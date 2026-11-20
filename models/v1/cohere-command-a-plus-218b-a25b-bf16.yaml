@@ -1,0 +1,28 @@
+modelId: CohereLabs/command-a-plus-05-2026-bf16
+name: Cohere Command A+ (BF16)
+description: Full-precision BF16 build of Cohere's flagship 218B MoE model (25B active params), tuned for agentic use, tool calling and reasoning across 48 languages, with a 128K context window.
+type: text-generation
+version: 1.0.0
+tags: ["text", "chat", "conversational", "reasoning"]
+logoUrl: ""
+repoUrl: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-bf16"
+provider: huggingface
+modelProvider: Cohere
+source:
+  type: huggingface
+  revision: "main"
+  version: ""
+  repository: "https://huggingface.co/CohereLabs/command-a-plus-05-2026-bf16"
+  requiresAuth: false
+  license: "apache-2.0"
+  containerImage: ""
+  apiEndpoint: ""
+resourceRequirements:
+  minRequiredRamInGb: 16
+  minRequiredVramInGb: 640
+  requiredDiscSizeInGb: 436
+dType: ["auto", "bfloat16", "float", "float16", "float32", "half"]
+config:
+  maxPositionEmbeddings: 131072
+  toolCallParser: cohere_command4
+  reasoningParser: cohere_command4
