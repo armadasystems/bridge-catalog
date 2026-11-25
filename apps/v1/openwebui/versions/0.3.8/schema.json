@@ -3,7 +3,7 @@
     "order": [
       "ollama",
       "pipelines",
-      "storage-class"
+      "persistence"
     ],
     "properties": {
       "ollama": {
@@ -22,19 +22,42 @@
       "pipelines": {
         "type": "object",
         "order": [
-          "enabled"
+          "enabled",
+          "persistence"
           ],
         "properties": {
           "enabled": {
             "type": "boolean",
             "default": true,
             "description": "  Automatically install Pipelines chart to extend Open WebUI functionality using Pipelines: https://github.com/open-webui/pipelines"
+          },
+          "persistence": {
+            "type": "object",
+            "order": [
+              "storageClass"
+            ],
+            "properties": {
+              "storageClass": {
+                "type": "string",
+                "default": "",
+                "description": "Leave empty to use the cluster's default storage class."
+              }
+            }
           }
         }
       },
-      "storage-class": {
-        "type": "string",
-        "default": "local-path"
+      "persistence": {
+        "type": "object",
+        "order": [
+          "storageClass"
+        ],
+        "properties": {
+          "storageClass": {
+            "type": "string",
+            "default": "",
+            "description": "Leave empty to use the cluster's default storage class."
+          }
+        }
       }
     }
 }
