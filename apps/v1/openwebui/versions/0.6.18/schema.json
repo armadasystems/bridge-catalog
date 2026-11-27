@@ -3,7 +3,7 @@
     "order": [
       "ollama",
       "pipelines",
-      "storage-class"
+      "persistence"
     ],
     "properties": {
       "ollama": {
@@ -32,9 +32,18 @@
           }
         }
       },
-      "storage-class": {
-        "type": "string",
-        "default": "local-path"
+      "persistence": {
+        "type": "object",
+        "order": [
+          "storageClass"
+        ],
+        "properties": {
+          "storageClass": {
+            "type": "string",
+            "default": "",
+            "description": "Leave empty to use the cluster's default storage class."
+          }
+        }
       }
     }
 }
