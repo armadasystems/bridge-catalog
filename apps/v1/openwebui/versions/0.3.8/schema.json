@@ -22,27 +22,13 @@
       "pipelines": {
         "type": "object",
         "order": [
-          "enabled",
-          "persistence"
+          "enabled"
           ],
         "properties": {
           "enabled": {
             "type": "boolean",
             "default": true,
             "description": "  Automatically install Pipelines chart to extend Open WebUI functionality using Pipelines: https://github.com/open-webui/pipelines"
-          },
-          "persistence": {
-            "type": "object",
-            "order": [
-              "storageClass"
-            ],
-            "properties": {
-              "storageClass": {
-                "type": "string",
-                "default": "",
-                "description": "Leave empty to use the cluster's default storage class."
-              }
-            }
           }
         }
       },
